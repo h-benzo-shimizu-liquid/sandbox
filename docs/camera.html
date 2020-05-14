@@ -9,14 +9,22 @@
 	</style>
 </head><body>
 	<div id="root">
-		<div>hello world</div>
+		<div>hello camera</div>
+		<video id="video" width="240" height="240" autoplay playsinline ></video>
 	</div>
 	<script type="text/javascript">
 // ----------------------------------------------------------------
 // ----------------------------------------------------------------
 // ----------------------------------------------------------------
 
-console.log("hello world");
+document.addEventListener("DOMContentLoaded", event => {
+	navigator.mediaDevices.getUserMedia({
+		video: true,
+		audio: false,
+	}).then(stream => {
+		document.getElementById("video").srcObject = stream;
+	});
+});
 
 // ----------------------------------------------------------------
 // ----------------------------------------------------------------
