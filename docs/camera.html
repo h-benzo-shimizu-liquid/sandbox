@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 	navigator.mediaDevices.getUserMedia({
 		video: true,
 		audio: false,
-	}).then(stream => {
+	}).then(function(stream) {
 		document.getElementById("video").srcObject = stream;
 	});
 });
