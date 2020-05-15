@@ -12,19 +12,34 @@
 		<div>hello camera</div>
 		<video id="video" width="240" height="240" autoplay playsinline ></video>
 	</div>
+	<script type="text/javascript" src="https://cdn.temasys.com.sg/adapterjs/0.15.x/adapter.debug.js"></script>
 	<script type="text/javascript">
 // ----------------------------------------------------------------
 // ----------------------------------------------------------------
 // ----------------------------------------------------------------
 
-document.addEventListener("DOMContentLoaded", function(event) {
-	navigator.mediaDevices.getUserMedia({
+AdapterJS.webRTCReady(function(isUsingPlugin) {
+	console.log("test");
+	getUserMedia({
 		video: true,
 		audio: false,
-	}).then(function(stream) {
-		document.getElementById("video").srcObject = stream;
+	}, function(stream) {
+		var video = document.getElementById("video");
+		video = attachMediaStream(video, stream)
+		console.log("success", video);
+	}, function(error) {
+		console.log("fail", error);
 	});
 });
+
+//document.addEventListener("DOMContentLoaded", function(event) {
+//	navigator.mediaDevices.getUserMedia({
+//		video: true,
+//		audio: false,
+//	}).then(function(stream) {
+//		document.getElementById("video").srcObject = stream;
+//	});
+//});
 
 // ----------------------------------------------------------------
 // ----------------------------------------------------------------
