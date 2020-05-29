@@ -1,0 +1,37 @@
+<html><head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<style type="text/css">
+		body { margin: 0; overflow: hidden; background-color: rgb(128, 255, 128); }
+		#root { display: flex; flex-direction: column; justify-content: center; align-items: center; }
+		#root { position: absolute; left: 0; right: 0; top: 0; bottom: 0; }
+	</style>
+	<title>hoge</title>
+</head><body>
+	<div id="root">
+		<div>動きそうなカメラ</div>
+		<video id="video" width="240" height="240" autoplay playsinline ></video>
+		<div>DOMException: Could not start video source ってなんじゃろな</div>
+		<div><a href="https://webrtc.github.io/samples/src/content/getusermedia/gum/">サンプル</a>だと動くとのことで、ソースを参考にして<a href="https://github.com/webrtcHacks/adapter/blob/master/release/adapter.js">adapter-latest.js</a>を使っている</div>
+	</div>
+	<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+	<script type="text/javascript">
+"use strict";
+
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+
+document.addEventListener("DOMContentLoaded", e => {
+	navigator.mediaDevices.getUserMedia({
+		video: true,
+		audio: false,
+	}).then(stream => {
+		document.getElementById("video").srcObject = stream;
+	});
+});
+
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+	</script>
+</body></html>
