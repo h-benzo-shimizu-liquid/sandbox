@@ -12,6 +12,7 @@
 		<video id="video" width="240" height="240" autoplay playsinline ></video>
 		<div>DOMException: Could not start video source ってなんじゃろな</div>
 		<div><a href="https://webrtc.github.io/samples/src/content/getusermedia/gum/">サンプル</a>だと動くとのことで、ソースを参考にして<a href="https://github.com/webrtcHacks/adapter/blob/master/release/adapter.js">adapter-latest.js</a>を使っている</div>
+		<div id="console"></div>
 	</div>
 	<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 	<script type="text/javascript">
@@ -22,11 +23,15 @@
 // ----------------------------------------------------------------
 
 document.addEventListener("DOMContentLoaded", e => {
+	document.getElementById("console").innerHTML = "wait";
 	navigator.mediaDevices.getUserMedia({
 		video: { facingMode: "environment" },
 		audio: false,
 	}).then(stream => {
 		document.getElementById("video").srcObject = stream;
+		document.getElementById("console").innerHTML = `success ${video}`;
+	}).catch(error => {
+		document.getElementById("console").innerHTML = `failed ${error} ${error.message}`;
 	});
 });
 

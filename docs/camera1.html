@@ -10,6 +10,7 @@
 	<div id="root">
 		<div>普通のカメラ</div>
 		<video id="video" width="240" height="240" autoplay playsinline ></video>
+		<div id="console"></div>
 	</div>
 	<script type="text/javascript">
 "use strict";
@@ -19,11 +20,15 @@
 // ----------------------------------------------------------------
 
 document.addEventListener("DOMContentLoaded", e => {
+	document.getElementById("console").innerHTML = "wait";
 	navigator.mediaDevices.getUserMedia({
 		video: { facingMode: "environment" },
 		audio: false,
 	}).then(stream => {
 		document.getElementById("video").srcObject = stream;
+		document.getElementById("console").innerHTML = `success ${video}`;
+	}).catch(error => {
+		document.getElementById("console").innerHTML = `failed ${error} ${error.message}`;
 	});
 });
 

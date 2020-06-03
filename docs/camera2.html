@@ -13,6 +13,7 @@
 		<video id="video" width="240" height="240" autoplay playsinline ></video>
 		<div><a href="https://temasys.atlassian.net/wiki/spaces/TWPP/overview">謎のプラグイン</a>を使っている</div>
 		<a href="https://github.com/h-benzo-shimizu-liquid/sandbox/blob/master/docs/camera2.html">source</a>
+		<div id="console"></div>
 	</div>
 	<script type="text/javascript" src="https://cdn.temasys.com.sg/adapterjs/0.15.x/adapter.debug.js"></script>
 	<script type="text/javascript">
@@ -21,16 +22,16 @@
 // ----------------------------------------------------------------
 
 AdapterJS.webRTCReady(function(isUsingPlugin) {
-	console.log("test");
+	document.getElementById("console").innerHTML = "wait";
 	getUserMedia({
 		video: { facingMode: "environment" },
 		audio: false,
 	}, function(stream) {
 		var video = document.getElementById("video");
-		video = attachMediaStream(video, stream)
-		console.log("success", video);
-	}, function(error) {
-		console.log("fail", error);
+		video = attachMediaStream(video, stream);
+		document.getElementById("console").innerHTML = `success ${video}`;
+	}).catch(error => {
+		document.getElementById("console").innerHTML = `failed ${error} ${error.message}`;
 	});
 });
 
