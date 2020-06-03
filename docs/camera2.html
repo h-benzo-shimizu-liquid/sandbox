@@ -23,7 +23,7 @@
 AdapterJS.webRTCReady(function(isUsingPlugin) {
 	console.log("test");
 	getUserMedia({
-		video: true,
+		video: { facingMode: "environment" },
 		audio: false,
 	}, function(stream) {
 		var video = document.getElementById("video");

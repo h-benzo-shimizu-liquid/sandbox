@@ -20,7 +20,7 @@
 
 document.addEventListener("DOMContentLoaded", e => {
 	navigator.mediaDevices.getUserMedia({
-		video: true,
+		video: { facingMode: "environment" },
 		audio: false,
 	}).then(stream => {
 		document.getElementById("video").srcObject = stream;
