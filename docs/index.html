@@ -1,22 +1,44 @@
 <!DOCTYPE html>
 <html><head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<title>テスト</title>
+	<title>index</title>
 	<style type="text/css">
 		body { margin: 0; overflow: hidden; }
 		#root { display: flex; flex-direction: column; justify-content: center; align-items: center; }
 		#root { position: absolute; left: 0; right: 0; top: 0; bottom: 0; }
+		.border { border: 2px solid black; padding: 10px; }
 	</style>
 </head><body>
 	<div id="root">
-		<div>hello world</div>
+		<div class="border">
+			<div id="screen"></div>
+			<textarea id="createTextarea" raws="1" cols="40"></textarea>
+			<button id="createButton">create</button>
+		</div>
+		<div><a href="camera1.html">camera1.html</a></div>
+		<div><a href="camera2.html">camera2.html</a></div>
+		<div><a href="camera3.html">camera3.html</a></div>
+		<div><a href="geolocation.html">geolocation.html</a></div>
 	</div>
+	<script type="text/javascript" src="https://unpkg.com/@zxing/library@0.15.2/umd/index.min.js"></script>
 	<script type="text/javascript">
 // ----------------------------------------------------------------
 // ----------------------------------------------------------------
 // ----------------------------------------------------------------
 
-console.log("hello world");
+// 読み込みが終わったら処理開始
+document.addEventListener("DOMContentLoaded", (event) => {
+	const create = () => {
+		const text = document.getElementById("createTextarea").value;
+		const writer = new ZXing.BrowserQRCodeSvgWriter();
+		const svg = writer.write(text, 300, 300);
+		document.getElementById("screen").innerHTML = svg.outerHTML;
+	};
+
+	document.getElementById("createTextarea").value = "https://h-benzo-shimizu-liquid.github.io/sandbox";
+	document.getElementById("createButton").addEventListener("click", create);
+	create();
+});
 
 // ----------------------------------------------------------------
 // ----------------------------------------------------------------
