@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html><head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>geolocation</title>
+	<style type="text/css">
+		body { margin: 0; overflow: hidden; }
+		#root { display: flex; flex-direction: column; justify-content: center; align-items: center; }
+		#root { position: absolute; left: 0; right: 0; top: 0; bottom: 0; }
+	</style>
+	</head><body>
+	<div id="root">
+		<table style="background-color: rgb(255, 255, 128);">
+			<caption>getCurrentPosition</caption>
+			<tr><td>緯度(latitude)</td><td>:</td><td><div id="getCurrentPosition_latitude"></div></td></tr>
+			<tr><td>経度(longitude)</td><td>:</td><td><div id="getCurrentPosition_longitude"></div></td></tr>
+			<tr><td>海抜(altitude)</td><td>:</td><td><div id="getCurrentPosition_altitude"></div></td></tr>
+			<tr><td>緯度と軽度の精度(accuracy)</td><td>:</td><td><div id="getCurrentPosition_accuracy"></div></td></tr>
+			<tr><td>海抜の精度(altitudeAccuracy)</td><td>:</td><td><div id="getCurrentPosition_altitudeAccuracy"></div></td></tr>
+			<tr><td>移動方向(heading)</td><td>:</td><td><div id="getCurrentPosition_heading"></div></td></tr>
+			<tr><td>移動速度(speed)</td><td>:</td><td><div id="getCurrentPosition_speed"></div></td></tr>
+		</table>
+		<table style="background-color: rgb(128, 255, 255);">
+			<caption>watchPosition</caption>
+			<tr><td>緯度(latitude)</td><td>:</td><td><div id="watchPosition_latitude"></div></td></tr>
+			<tr><td>経度(longitude)</td><td>:</td><td><div id="watchPosition_longitude"></div></td></tr>
+			<tr><td>海抜(altitude)</td><td>:</td><td><div id="watchPosition_altitude"></div></td></tr>
+			<tr><td>緯度と軽度の精度(accuracy)</td><td>:</td><td><div id="watchPosition_accuracy"></div></td></tr>
+			<tr><td>海抜の精度(altitudeAccuracy)</td><td>:</td><td><div id="watchPosition_altitudeAccuracy"></div></td></tr>
+			<tr><td>移動方向(heading)</td><td>:</td><td><div id="watchPosition_heading"></div></td></tr>
+			<tr><td>移動速度(speed)</td><td>:</td><td><div id="watchPosition_speed"></div></td></tr>
+		</table>
+		<div id="console"></div>
+	</div>
+	<script type="text/javascript">
+"use strict";
+
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+
+document.addEventListener("DOMContentLoaded", async event => {
+	try {
+		if (!navigator.geolocation) { throw new Error("not supported"); }
+		document.getElementById("console").innerHTML = "wait";
+
+		const options = {
+			enableHighAccuracy: false,
+			timeout: Infinity,
+			maximumAge: 0,
+		};
+
+		const position = await new Promise((resolve, reject) => navigator.geolocation.getCurrentPosition(resolve, reject, options));
+		document.getElementById("getCurrentPosition_latitude").innerHTML = `${position.coords.latitude}`;
+		document.getElementById("getCurrentPosition_longitude").innerHTML = `${position.coords.longitude}`;
+		document.getElementById("getCurrentPosition_altitude").innerHTML = `${position.coords.altitude}`;
+		document.getElementById("getCurrentPosition_accuracy").innerHTML = `${position.coords.accuracy}`;
+		document.getElementById("getCurrentPosition_altitudeAccuracy").innerHTML = `${position.coords.altitudeAccuracy}`;
+		document.getElementById("getCurrentPosition_heading").innerHTML = `${position.coords.heading}`;
+		document.getElementById("getCurrentPosition_speed").innerHTML = `${position.coords.speed}`;
+		document.getElementById("console").innerHTML = "success";
+
+		await new Promise((_, reject) => navigator.geolocation.watchPosition(position => {
+			document.getElementById("watchPosition_latitude").innerHTML = `${position.coords.latitude}`;
+			document.getElementById("watchPosition_longitude").innerHTML = `${position.coords.longitude}`;
+			document.getElementById("watchPosition_altitude").innerHTML = `${position.coords.altitude}`;
+			document.getElementById("watchPosition_accuracy").innerHTML = `${position.coords.accuracy}`;
+			document.getElementById("watchPosition_altitudeAccuracy").innerHTML = `${position.coords.altitudeAccuracy}`;
+			document.getElementById("watchPosition_heading").innerHTML = `${position.coords.heading}`;
+			document.getElementById("watchPosition_speed").innerHTML = `${position.coords.speed}`;
+		}, reject, options));
+	} catch(error) {
+		document.getElementById("console").innerHTML = `failed ${error} ${error.message}`;
+	}
+});
+
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+	</script>
+</body></html>
