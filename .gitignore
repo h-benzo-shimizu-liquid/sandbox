@@ -1,0 +1,9 @@
+
+# --------------------------------
+
+bin/mysslserver.key
+bin/mysslserver.csr
+bin/mysslserver.crt
+bin/mysslserver.pfx
+
+# --------------------------------
