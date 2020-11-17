@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html><head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<style type="text/css">
+		body { margin: 0; overflow: hidden; background-color: rgb(255, 255, 128); }
+		#root { display: flex; flex-direction: column; justify-content: center; align-items: center; }
+		#root { position: absolute; left: 0; right: 0; top: 0; bottom: 0; }
+	</style>
+</head><body style="margin: 0; overflow: hidden;">
+	<div id="root">
+		<input id="valueInput" type="text" value="0000 0000 0000"></input>
+	</div>
+	<script type="text/javascript">
+"use strict";
+
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+
+document.addEventListener("DOMContentLoaded", e => {
+	const valueInput = document.getElementById("valueInput");
+
+	let prevVal = `${valueInput.value}`;
+	valueInput.addEventListener("input", event => {
+		const currVal = `${valueInput.value}`;
+		let tempVal = `${currVal}`;
+		let tempPos = valueInput.selectionStart;
+
+		if (tempVal.length > 14) {
+			tempVal = prevVal;
+			tempPos--;
+		} else {
+			prevVal = currVal;
+		}
+
+		tempVal = tempVal.replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
+		tempVal = tempVal.replace(/[^0-9]/g, "");
+		tempVal = tempVal.replace(/^([^ ]{8})(.+)$/, "$1 $2");
+		tempVal = tempVal.replace(/^([^ ]{4})(.+)$/, "$1 $2");
+
+		if (tempPos === 5 && currVal.length === 5) tempPos = 6;
+		if (tempPos === 10 && currVal.length === 10) tempPos = 11;
+
+		valueInput.value = tempVal;
+		valueInput.setSelectionRange(tempPos, tempPos);
+	});
+});
+
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+	</script>
+</body></html>
