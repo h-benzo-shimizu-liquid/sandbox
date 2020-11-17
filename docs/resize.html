@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html><head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<style type="text/css">
+		body { margin: 0; overflow: hidden; }
+	</style>
+</head><body>
+	<div id="app">
+		<component-test />
+	</div>
+	<script src="https://unpkg.com/vue@2.6.2/dist/vue.js"></script>
+	<script type="text/javascript">
+"use strict";
+
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+
+// コンポーネント
+Vue.component("component-test", {
+	data: function() {
+		return {
+			w: 100,
+			h: 100,
+			isResize: false,
+			handleResizeTimerId: -1,
+		};
+	},
+
+	computed: {
+		viewbox: function() {return `0 0 ${this.w} ${this.h}`;}
+	},
+	
+	methods: {
+		handleResizeScheduler: function() {
+			this.isResize = true;
+			window.clearTimeout(this.handleResizeTimerId);
+			this.handleResizeTimerId = window.setTimeout(() => {
+				this.handleResize();
+				this.isResize = false;
+			}, 1000);
+		},
+
+		handleResize: function() {
+			if (window.innerWidth === document.documentElement.clientWidth) {
+				this.w = window.innerWidth;
+				this.h = window.innerHeight;
+			} else {
+				this.w = document.documentElement.clientWidth;
+				this.h = document.documentElement.clientHeight;
+			}
+			console.log(this.w, this.h);
+		},
+	},
+
+	mounted: function() {
+		window.addEventListener('resize', this.handleResizeScheduler);
+		this.handleResize();
+	},
+
+	beforeDestroy: function() {
+		this.isResize = false;
+		window.removeEventListener('resize', this.handleResizeScheduler);
+	},
+
+	template: `
+		<div>
+			<div :style="{
+				width: (w - 20) + 'px',
+				height: (h - 20) + 'px',
+				marginLeft: '10px',
+				marginTop: '10px',
+				backgroundColor: 'red',
+			}"></div>
+		</div>
+	`,
+});
+
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+
+// 処理はここから始まる
+document.addEventListener("DOMContentLoaded", event => {
+	const app = new Vue({ el: "#app", });
+});
+
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+	</script>
+</body></html>
