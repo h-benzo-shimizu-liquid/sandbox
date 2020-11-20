@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html><head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
 	<style type="text/css">
 		body { margin: 0; overflow: hidden; }
 	</style>
@@ -44,13 +44,8 @@ Vue.component('component-test', {
 		},
 
 		handleResize: function() {
-			if (window.innerWidth === document.documentElement.clientWidth) {
-				this.w = window.innerWidth;
-				this.h = window.innerHeight;
-			} else {
-				this.w = document.documentElement.clientWidth;
-				this.h = document.documentElement.clientHeight;
-			}
+			this.w = window.innerWidth;
+			this.h = window.innerHeight;
 		},
 	},
 
@@ -70,7 +65,7 @@ Vue.component('component-test', {
 				position: 'relative',
 				width: w + 'px',
 				height: h + 'px',
-				backgroundColor: 'lime',
+				backgroundColor: 'oldlace',
 			}">
 				<div :style="{
 					width: '100%',
