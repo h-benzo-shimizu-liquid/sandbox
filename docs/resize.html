@@ -68,18 +68,15 @@ Vue.component('component-test', {
 		<div>
 			<div :style="{
 				position: 'relative',
-				width: (w - 20) + 'px',
-				height: (h - 20) + 'px',
-				marginLeft: '10px',
-				marginTop: '10px',
-				backgroundColor: 'lightsteelblue',
+				width: w + 'px',
+				height: h + 'px',
+				backgroundColor: 'brown',
 			}">
-				<div ref="video" :style="{
+				<div :style="{
 					width: '100%',
 					height: '100%',
 					display: 'block',
-					objectFit: 'cover',
-				}"></div>
+				}" />
 			</div>
 		</div>
 	`,
