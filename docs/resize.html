@@ -44,8 +44,13 @@ Vue.component('component-test', {
 		},
 
 		handleResize: function() {
-			this.w = window.innerWidth;
-			this.h = window.innerHeight;
+			if (window.innerWidth === document.documentElement.clientWidth) {
+				this.w = window.innerWidth;
+				this.h = window.innerHeight;
+			} else {
+				this.w = document.documentElement.clientWidth;
+				this.h = document.documentElement.clientHeight;
+			}
 		},
 	},
 
@@ -65,12 +70,9 @@ Vue.component('component-test', {
 				position: 'relative',
 				width: w + 'px',
 				height: h + 'px',
-				backgroundColor: 'oldlace',
+				backgroundColor: 'gold',
 			}">
-				<div :style="{
-					width: '100%',
-					height: '100%',
-				}" />
+				あいうえおかき
 			</div>
 		</div>
 	`,
