@@ -58,6 +58,15 @@ Vue.component('component-test', {
 	mounted: function() {
 		window.addEventListener('resize', this.handleResizeScheduler);
 		this.handleResize();
+		navigator.mediaDevices.getUserMedia({
+			audio: false,
+			video: {
+				facingMode: 'user',
+				width: 1920,
+			},
+		}).then(stream => {
+			this.$refs.video.srcObject = stream;
+		});
 	},
 
 	beforeDestroy: function() {
@@ -75,13 +84,13 @@ Vue.component('component-test', {
 				marginTop: '10px',
 				backgroundColor: 'pink',
 			}">
-				<div ref="video" :style="{
+				<video ref="video" :style="{
 					width: '100%',
 					height: '100%',
 					display: 'block',
 					objectFit: 'cover',
 					backgroundColor: 'red',
-				}"></div>
+				}" autoplay playsinline="true"></video>
 			</div>
 		</div>
 	`,
