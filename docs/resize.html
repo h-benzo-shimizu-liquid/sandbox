@@ -51,22 +51,12 @@ Vue.component('component-test', {
 				this.w = document.documentElement.clientWidth;
 				this.h = document.documentElement.clientHeight;
 			}
-			console.log(this.w, this.h);
 		},
 	},
 
 	mounted: function() {
 		window.addEventListener('resize', this.handleResizeScheduler);
 		this.handleResize();
-		navigator.mediaDevices.getUserMedia({
-			audio: false,
-			video: {
-				facingMode: 'user',
-				width: 1920,
-			},
-		}).then(stream => {
-			this.$refs.video.srcObject = stream;
-		});
 	},
 
 	beforeDestroy: function() {
@@ -82,14 +72,14 @@ Vue.component('component-test', {
 				height: (h - 20) + 'px',
 				marginLeft: '10px',
 				marginTop: '10px',
-				backgroundColor: 'purple',
+				backgroundColor: 'coral',
 			}">
-				<video ref="video" :style="{
+				<div ref="video" :style="{
 					width: '100%',
 					height: '100%',
 					display: 'block',
 					objectFit: 'cover',
-				}" autoplay playsinline="true"></video>
+				}" autoplay playsinline="true"></div>
 				<div :style="{
 					position: 'absolute',
 					left: '10px',
