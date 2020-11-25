@@ -44,12 +44,13 @@ Vue.component('component-test', {
 		},
 
 		handleResize: function() {
-			// 手元の端末だとinnerWidthは存在する要素の横幅につられて実際よりも大きな横幅になってしまうことがある
-			// 横向きから縦向きに戻した際にinnerWidthだとおかしくなり、その場合はclientWidthを使う方が良さそうである
-			// ただしclientWidthはアドレスバーの非表示を検知できず、アドレスバーが隠れると下に隙間ができる
-			// そのため、横幅の絶対値はclientWidthが正しく、縦幅の比はinnerHeightが正しいものとして計算する
-			this.w = window.innerWidth * (document.documentElement.clientWidth / window.innerWidth);
-			this.h = window.innerHeight * (document.documentElement.clientWidth / window.innerWidth);
+			if (window.innerWidth === document.documentElement.clientWidth) {
+				this.w = window.innerWidth;
+				this.h = window.innerHeight;
+			} else {
+				this.w = document.documentElement.clientWidth;
+				this.h = document.documentElement.clientHeight;
+			}
 		},
 	},
 
@@ -69,7 +70,7 @@ Vue.component('component-test', {
 				position: 'relative',
 				width: w + 'px',
 				height: h + 'px',
-				backgroundColor: 'red',
+				backgroundColor: 'gold',
 			}">
 				あいうえおかき
 			</div>
