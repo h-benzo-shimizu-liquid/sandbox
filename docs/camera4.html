@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html><head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>camera</title>
+	<style type="text/css">
+		body { margin: 0; overflow: hidden; background-color: gray; }
+		#root { display: flex; flex-direction: column; justify-content: center; align-items: center; }
+		#root { position: absolute; left: 0; right: 0; top: 0; bottom: 0; }
+		#divVideo { width: 240px; height: 160px; background-color: black; }
+		#divVideo video { width: 100%; height: 100%; }
+		#divButton { display: flex; flex-direction: raw; justify-content: center; align-items: center; }
+	</style>
+</head><body>
+	<div id="root">
+		<div id="divVideo"></div>
+		<div id="divButton">
+			<textarea id="textareaConstraints" rows="6" cols="40"></textarea>
+			<input id="inputButtonStart" type="button" value="start"></input>
+		</div>
+		<div id="console"></div>
+	</div>
+	<script type="text/javascript">
+"use strict";
+
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+
+document.getElementById("textareaConstraints").innerHTML = `{
+	"facingMode": "environment",
+	"width": {
+		"ideal": 3840
+	}
+}`;
+
+document.addEventListener("DOMContentLoaded", e => {
+	document.getElementById("console").innerHTML = "push start button";
+
+	document.getElementById("inputButtonStart").addEventListener("click", event => {
+		document.getElementById("console").innerHTML = "wait";
+		document.getElementById("divVideo").innerHTML = "";
+		document.getElementById("divVideo").appendChild((() => {
+			const element = document.createElement("video");
+			element.autoplay = true;
+			element.playsinline = true;
+			navigator.mediaDevices.getUserMedia({
+				video: JSON.parse(document.getElementById("textareaConstraints").innerHTML),
+				audio: false,
+			}).then(stream => {
+				element.srcObject = stream;
+				document.getElementById("console").innerHTML = `success ${element}`;
+			}).catch(error => {
+				document.getElementById("console").innerHTML = `failed ${error} ${error.message}`;
+			});
+			return element;
+		})());
+	});
+});
+
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+	</script>
+</body></html>
