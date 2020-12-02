@@ -26,7 +26,7 @@
 // ----------------------------------------------------------------
 // ----------------------------------------------------------------
 
-document.getElementById("textareaConstraints").innerHTML = `{
+document.getElementById("textareaConstraints").value = `{
 	"facingMode": "environment",
 	"width": {
 		"ideal": 3840
@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", e => {
 			element.autoplay = true;
 			element.playsinline = true;
 			navigator.mediaDevices.getUserMedia({
-				video: JSON.parse(document.getElementById("textareaConstraints").innerHTML),
+				video: JSON.parse(document.getElementById("textareaConstraints").value),
 				audio: false,
 			}).then(stream => {
 				element.srcObject = stream;
