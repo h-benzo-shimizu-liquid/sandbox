@@ -4,7 +4,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>camera</title>
 	<style type="text/css">
-		body { margin: 0; overflow: hidden; background-color: brown; }
+		body { margin: 0; overflow: hidden; background-color: white; }
 		#root { display: flex; flex-direction: column; justify-content: flex-start; align-items: center; }
 		#root { position: absolute; left: 0; right: 0; top: 0; bottom: 0; padding: 20px; overflow: scroll; }
 		#divVideo { width: 240px; height: 360px; background-color: black; }
@@ -18,6 +18,7 @@
 			<textarea id="textareaConstraints" rows="6" cols="40"></textarea>
 			<input id="inputButtonStart" type="button" value="start"></input>
 			<input id="inputButtonApply" type="button" value="apply"></input>
+			<input id="inputRangeFocus" type="range"></input>
 		</div>
 		<div id="console"></div>
 		<div id="supported" style="background-color: silver;"></div>
@@ -31,7 +32,7 @@
 
 document.getElementById("textareaConstraints").value = `{
 	"facingMode": "environment",
-	"width": { "ideal": 3840 },
+	"width": { "ideal": 3840 }
 }`;
 
 //"focusMode": "manual",
@@ -62,10 +63,12 @@ document.addEventListener("DOMContentLoaded", e => {
 	});
 
 	document.getElementById("inputButtonApply").addEventListener("click", event => {
-		const stream = document.createElement("video").srcObject;
+		const stream = document.getElementById("divVideo").children[0].srcObject;
 		const track = stream.getVideoTracks()[0];
 		document.getElementById("supported").innerHTML = JSON.stringify(track.getCapabilities(), null, "  ").replaceAll("\n", "<br>");
 	});
+
+	document.getElementById("inputRangeFocus").addEventListener("click", event => {});
 });
 
 // ----------------------------------------------------------------
