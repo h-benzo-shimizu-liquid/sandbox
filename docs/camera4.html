@@ -4,7 +4,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>camera</title>
 	<style type="text/css">
-		body { margin: 0; overflow: hidden; background-color: blue; }
+		body { margin: 0; overflow: hidden; background-color: green; }
 		#root { display: flex; flex-direction: column; justify-content: flex-start; align-items: center; }
 		#root { position: absolute; left: 0; right: 0; top: 0; bottom: 0; padding: 20px; overflow: scroll; }
 		#divVideo { width: 240px; height: 360px; background-color: black; }
@@ -16,8 +16,11 @@
 		<div id="divVideo"></div>
 		<div id="divButton">
 			<textarea id="textareaConstraints" rows="6" cols="40"></textarea>
+			<br>
 			<input id="inputButtonStart" type="button" value="start"></input>
+			<br>
 			<input id="inputButtonApply" type="button" value="apply"></input>
+			<br>
 			<input id="inputRangeFocus" type="range"></input>
 		</div>
 		<div id="console" style="width: 300px; background-color: silver;"></div>
@@ -76,7 +79,7 @@ document.addEventListener("DOMContentLoaded", e => {
 		document.getElementById("inputRangeFocus").value = track.getSettings().focusDistance;
 	});
 
-	document.getElementById("inputRangeFocus").addEventListener("click", event => {
+	document.getElementById("inputRangeFocus").addEventListener("input", event => {
 		const stream = document.getElementById("divVideo").children[0].srcObject;
 		const track = stream.getVideoTracks()[0];
 		track.applyConstraints({
