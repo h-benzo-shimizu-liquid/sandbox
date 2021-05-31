@@ -1,33 +1,23 @@
 <!DOCTYPE html>
 <html><head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>camera</title>
 	<style type="text/css">
-		body { margin: 0; overflow: hidden; background-color: green; }
-		#root { display: flex; flex-direction: column; justify-content: flex-start; align-items: center; }
-		#root { position: absolute; left: 0; right: 0; top: 0; bottom: 0; padding: 20px; overflow: scroll; }
-		#divVideo { width: 240px; height: 360px; background-color: black; }
+		body { margin: 0; overflow: hidden; background-color: gray; }
+		#root { display: flex; flex-direction: column; justify-content: center; align-items: center; }
+		#root { position: absolute; left: 0; right: 0; top: 0; bottom: 0; }
+		#divVideo { width: 240px; height: 160px; background-color: black; }
 		#divVideo video { width: 100%; height: 100%; }
-		#divButton { display: flex; flex-direction: column; justify-content: center; align-items: center; }
+		#divButton { display: flex; flex-direction: raw; justify-content: center; align-items: center; }
 	</style>
 </head><body>
 	<div id="root">
 		<div id="divVideo"></div>
 		<div id="divButton">
 			<textarea id="textareaConstraints" rows="6" cols="40"></textarea>
-			<br>
 			<input id="inputButtonStart" type="button" value="start"></input>
-			<br>
-			<input id="inputButtonApply" type="button" value="apply"></input>
-			<br>
-			<input id="inputRangeFocus" type="range"></input>
 		</div>
-		<div id="console" style="width: 300px; background-color: silver;"></div>
-		<br>
-		<div id="setting" style="width: 300px; background-color: silver;"></div>
-		<br>
-		<div id="supported" style="width: 300px; background-color: silver;"></div>
+		<div id="console"></div>
 	</div>
 	<script type="text/javascript">
 "use strict";
@@ -38,18 +28,16 @@
 
 document.getElementById("textareaConstraints").value = `{
 	"facingMode": "environment",
-	"width": { "ideal": 3840 }
+	"width": {
+		"ideal": 3840
+	}
 }`;
-
-//"focusMode": "manual",
-//"pointsOfInterest": { "x": 0, "y": 0 }
 
 document.addEventListener("DOMContentLoaded", e => {
 	document.getElementById("console").innerHTML = "push start button";
 
 	document.getElementById("inputButtonStart").addEventListener("click", event => {
 		document.getElementById("console").innerHTML = "wait";
-		document.getElementById("supported").innerHTML = JSON.stringify(navigator.mediaDevices.getSupportedConstraints(), null, "  ").replaceAll("\n", "<br>");
 		document.getElementById("divVideo").innerHTML = "";
 		document.getElementById("divVideo").appendChild((() => {
 			const element = document.createElement("video");
@@ -66,28 +54,6 @@ document.addEventListener("DOMContentLoaded", e => {
 			});
 			return element;
 		})());
-	});
-
-	document.getElementById("inputButtonApply").addEventListener("click", event => {
-		const stream = document.getElementById("divVideo").children[0].srcObject;
-		const track = stream.getVideoTracks()[0];
-		document.getElementById("setting").innerHTML = JSON.stringify(track.getSettings(), null, "  ").replaceAll("\n", "<br>");
-		document.getElementById("supported").innerHTML = JSON.stringify(track.getCapabilities(), null, "  ").replaceAll("\n", "<br>");
-		document.getElementById("inputRangeFocus").min = track.getCapabilities().focusDistance.min;
-		document.getElementById("inputRangeFocus").max = track.getCapabilities().focusDistance.max;
-		document.getElementById("inputRangeFocus").step = track.getCapabilities().focusDistance.step;
-		document.getElementById("inputRangeFocus").value = track.getSettings().focusDistance;
-	});
-
-	document.getElementById("inputRangeFocus").addEventListener("input", event => {
-		const stream = document.getElementById("divVideo").children[0].srcObject;
-		const track = stream.getVideoTracks()[0];
-		track.applyConstraints({
-			advanced: [{
-				focusMode: "manual",
-				focusDistance: document.getElementById("inputRangeFocus").value
-			}]
-		});
 	});
 });
 
