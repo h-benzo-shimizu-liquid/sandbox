@@ -3,7 +3,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title>camera</title>
 	<style type="text/css">
-		body { margin: 0; overflow: hidden; background-color: blue; }
+		body { margin: 0; overflow: hidden; background-color: pink; }
 		#root { display: flex; flex-direction: column; justify-content: center; align-items: center; }
 		#root { position: absolute; left: 0; right: 0; top: 0; bottom: 0; }
 		#divVideo { width: 240px; height: 160px; background-color: black; }
@@ -18,7 +18,7 @@
 			<input id="inputButtonStart" type="button" value="start"></input>
 		</div>
 		<div id="console"></div>
-		<div id="supported"></div>
+		<div id="supported" style="background-color: silver;"></div>
 	</div>
 	<script type="text/javascript">
 "use strict";
@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", e => {
 
 	document.getElementById("inputButtonStart").addEventListener("click", event => {
 		document.getElementById("console").innerHTML = "wait";
-		document.getElementById("supported").innerHTML = JSON.stringify(navigator.mediaDevices.getSupportedConstraints());
+		document.getElementById("supported").innerHTML = JSON.stringify(navigator.mediaDevices.getSupportedConstraints(), null, '  ');
 		document.getElementById("divVideo").innerHTML = "";
 		document.getElementById("divVideo").appendChild((() => {
 			const element = document.createElement("video");
