@@ -15,7 +15,9 @@
 		<br>
 		<div id="setting" style="width: 300px; background-color: silver;"></div>
 		<br>
-		<div id="supported" style="width: 300px; background-color: silver;"></div>
+		<div id="supported2" style="width: 300px; background-color: silver;"></div>
+		<br>
+		<div id="supported1" style="width: 300px; background-color: silver;"></div>
 	</div>
 	<script type="text/javascript">
 "use strict";
@@ -33,10 +35,9 @@ document.addEventListener("DOMContentLoaded", async event => {
 
 	const track = stream.getVideoTracks()[0];
 	const getTrackInfo = (id, info) => { document.getElementById(id).innerHTML = JSON.stringify(info, null, "  ").replace(/("focusMode": ".*",)/g, '<span style="color: red">$1</span>'); }
-	const getTrackCapabilities = () => getTrackInfo("supported", track.getCapabilities());
-	const getTrackSettings = () => getTrackInfo("setting", track.getSettings());
-	getTrackCapabilities();
-	getTrackSettings();
+	getTrackInfo("supported1", navigator.mediaDevices.getSupportedConstraints());
+	getTrackInfo("supported2", track.getCapabilities());
+	getTrackInfo("setting", track.getSettings());
 
 	if (track.getCapabilities().focusDistance) {
 		document.getElementById("divFocus").appendChild((() =>{
@@ -51,7 +52,7 @@ document.addEventListener("DOMContentLoaded", async event => {
 					elementRange.max = track.getCapabilities().focusDistance.max;
 					elementRange.step = track.getCapabilities().focusDistance.step;
 					elementRange.value = track.getSettings().focusDistance;
-					const setFocus = () => track.applyConstraints({ advanced: [{ focusMode: "manual", focusDistance: elementRange.value, }] }).then(() => getTrackSettings());
+					const setFocus = () => track.applyConstraints({ advanced: [{ focusMode: "manual", focusDistance: elementRange.value, }] }).then(() => getTrackInfo("setting", track.getSettings()));
 					elementRange.addEventListener("input", setFocus);
 					setFocus();
 					return elementRange;
