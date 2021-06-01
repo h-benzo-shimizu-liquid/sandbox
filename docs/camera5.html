@@ -4,13 +4,15 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>camera</title>
 	<style type="text/css">
-		body { margin: 0; overflow: hidden; background-color: green; }
+		body { margin: 0; overflow: hidden; background-color: black; }
 		#root { display: flex; flex-direction: column; justify-content: flex-start; align-items: center; }
 		#root { position: absolute; left: 0; right: 0; top: 0; bottom: 0; padding: 20px; overflow: scroll; }
 	</style>
 </head><body>
 	<div id="root">
 		<video id="video" width="240" height="240" autoplay playsinline ></video>
+		<div id="divFocus"><button>manual focus</button></div>
+
 		<input id="inputRangeFocus" type="range"></input>
 		<br>
 		<div id="setting" style="width: 300px; background-color: silver;"></div>
@@ -32,21 +34,36 @@ document.addEventListener("DOMContentLoaded", async event => {
 	document.getElementById("video").srcObject = stream;
 
 	const track = stream.getVideoTracks()[0];
-	document.getElementById("setting").innerHTML = JSON.stringify(track.getSettings(), null, "  ").replaceAll("\n", "<br>");
-	document.getElementById("supported").innerHTML = JSON.stringify(track.getCapabilities(), null, "  ").replaceAll("\n", "<br>");
-	document.getElementById("inputRangeFocus").min = track.getCapabilities().focusDistance.min;
-	document.getElementById("inputRangeFocus").max = track.getCapabilities().focusDistance.max;
-	document.getElementById("inputRangeFocus").step = track.getCapabilities().focusDistance.step;
-	document.getElementById("inputRangeFocus").value = track.getSettings().focusDistance;
+	const getTrackInfo = (id, info) => { document.getElementById(id).innerHTML = JSON.stringify(info); }
+	const getTrackCapabilities = () => getTrackInfo("supported", track.getCapabilities());
+	const getTrackSettings = () => getTrackInfo("setting", track.getSettings());
+	getTrackCapabilities();
+	getTrackSettings();
 
-	document.getElementById("inputRangeFocus").addEventListener("input", event => {
-		track.applyConstraints({
-			advanced: [{
-				focusMode: "manual",
-				focusDistance: document.getElementById("inputRangeFocus").value
-			}]
-		});
-	});
+	if (track.getCapabilities().focusDistance) {
+		document.getElementById("divFocus").appendChild((() =>{
+			const elementButton = document.createElement("button");
+			elementButton.addEventListener("click", event => {
+				document.getElementById("divFocus").innerHTML = "";
+				document.getElementById("divFocus").appendChild((() =>{
+					const elementRange = document.createElement("input");
+					elementRange.type = "range";
+					elementRange.min = track.getCapabilities().focusDistance.min;
+					elementRange.max = track.getCapabilities().focusDistance.max;
+					elementRange.step = track.getCapabilities().focusDistance.step;
+					elementRange.value = track.getSettings().focusDistance;
+					const setFocus = () => {
+						track.applyConstraints({ advanced: [{ focusMode: "manual", focusDistance: elementRange.value, }] });
+						getTrackSettings();
+					};
+					elementRange.addEventListener("input", setFocus);
+					setFocus();
+					return elementRange;
+				})());
+			});
+			return elementButton;
+		})());
+	}
 });
 
 // ----------------------------------------------------------------
