@@ -4,16 +4,14 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>camera</title>
 	<style type="text/css">
-		body { margin: 0; overflow: hidden; background-color: black; }
+		body { margin: 0; overflow: hidden; background-color: white; }
 		#root { display: flex; flex-direction: column; justify-content: flex-start; align-items: center; }
 		#root { position: absolute; left: 0; right: 0; top: 0; bottom: 0; padding: 20px; overflow: scroll; }
 	</style>
 </head><body>
 	<div id="root">
 		<video id="video" width="240" height="240" autoplay playsinline ></video>
-		<div id="divFocus"><button>manual focus</button></div>
-
-		<input id="inputRangeFocus" type="range"></input>
+		<div id="divFocus"></div>
 		<br>
 		<div id="setting" style="width: 300px; background-color: silver;"></div>
 		<br>
@@ -34,7 +32,7 @@ document.addEventListener("DOMContentLoaded", async event => {
 	document.getElementById("video").srcObject = stream;
 
 	const track = stream.getVideoTracks()[0];
-	const getTrackInfo = (id, info) => { document.getElementById(id).innerHTML = JSON.stringify(info); }
+	const getTrackInfo = (id, info) => { document.getElementById(id).innerHTML = JSON.stringify(info, null, "  ").replace(/("focusMode": ".*",)/g, '<span style="color: red">$1</span>'); }
 	const getTrackCapabilities = () => getTrackInfo("supported", track.getCapabilities());
 	const getTrackSettings = () => getTrackInfo("setting", track.getSettings());
 	getTrackCapabilities();
@@ -43,6 +41,7 @@ document.addEventListener("DOMContentLoaded", async event => {
 	if (track.getCapabilities().focusDistance) {
 		document.getElementById("divFocus").appendChild((() =>{
 			const elementButton = document.createElement("button");
+			elementButton.innerHTML = "手動フォーカス";
 			elementButton.addEventListener("click", event => {
 				document.getElementById("divFocus").innerHTML = "";
 				document.getElementById("divFocus").appendChild((() =>{
@@ -52,10 +51,7 @@ document.addEventListener("DOMContentLoaded", async event => {
 					elementRange.max = track.getCapabilities().focusDistance.max;
 					elementRange.step = track.getCapabilities().focusDistance.step;
 					elementRange.value = track.getSettings().focusDistance;
-					const setFocus = () => {
-						track.applyConstraints({ advanced: [{ focusMode: "manual", focusDistance: elementRange.value, }] });
-						getTrackSettings();
-					};
+					const setFocus = () => track.applyConstraints({ advanced: [{ focusMode: "manual", focusDistance: elementRange.value, }] }).then(() => getTrackSettings());
 					elementRange.addEventListener("input", setFocus);
 					setFocus();
 					return elementRange;
