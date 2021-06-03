@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html><head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>camera</title>
+	<style type="text/css">
+		body { margin: 0; overflow: hidden; background-color: white; }
+		#root { display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start; }
+		#root { position: absolute; left: 0; right: 0; top: 0; bottom: 0; padding: 20px; overflow: scroll; }
+	</style>
+</head><body>
+	<div id="root">
+		<div>
+			<select id="selectDevices"></select>
+			<button id="buttonCamera">カメラ起動</button>
+		</div>
+		<video id="video" width="240" height="240" autoplay playsinline ></video>
+		<div id="divFocus"></div>
+		<br>
+		<div id="setting" style="width: 300px; background-color: silver;"></div>
+		<br>
+		<div id="supported2" style="width: 300px; background-color: silver;"></div>
+		<br>
+		<div id="supported1" style="width: 300px; background-color: silver;"></div>
+	</div>
+	<script type="text/javascript">
+"use strict";
+
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+
+const drawDomConsole = (id, info) => {
+	let value = JSON.stringify(info, null, "  ");
+	value = value.replace(/("focusMode": ".*?",)/g, '<span style="color: red">$1</span>');
+	value = value.replace(/("focusMode": \[[\s\S]*?\],)/g, '<span style="color: red">$1</span>');
+	document.getElementById(id).innerHTML = value;
+}
+
+const checkFocusMode = () => {
+	document.getElementById("divFocus").innerHTML = "";
+	const stream = document.getElementById("video").srcObject;
+	const track = stream.getVideoTracks()[0];
+	const focusMode = track.getSettings().focusMode;
+	if (focusMode === "continuous") {
+		if (track.getCapabilities().focusMode.indexOf("manual") >= 0) {
+			document.getElementById("divFocus").appendChild((() =>{
+				const elementButton = document.createElement("button");
+				elementButton.innerHTML = "手動フォーカスにする";
+				elementButton.addEventListener("click", event => {
+					track.applyConstraints({ advanced: [{ focusMode: "manual", focusDistance: track.getSettings().focusDistance, }] }).then(() => {
+						drawDomConsole("setting", track.getSettings());
+						checkFocusMode();
+					}).catch(e => drawDomConsole("setting", e));
+				});
+				return elementButton;
+			})());
+		}
+	} else if (focusMode === "manual") {
+		if (track.getCapabilities().focusMode.indexOf("continuous") >= 0) {
+			document.getElementById("divFocus").appendChild((() =>{
+				const elementButton = document.createElement("button");
+				elementButton.innerHTML = "自動フォーカスにする";
+				elementButton.addEventListener("click", event => {
+					track.applyConstraints({ advanced: [{ focusMode: "continuous", }] }).then(() => {
+						drawDomConsole("setting", track.getSettings());
+						checkFocusMode();
+					});
+				});
+				return elementButton;
+			})());
+		}
+		document.getElementById("divFocus").appendChild((() =>{
+			const elementRange = document.createElement("input");
+			elementRange.type = "range";
+			elementRange.min = track.getCapabilities().focusDistance.min;
+			elementRange.max = track.getCapabilities().focusDistance.max;
+			elementRange.step = track.getCapabilities().focusDistance.step;
+			elementRange.value = track.getSettings().focusDistance;
+			const setFocus = () => track.applyConstraints({ advanced: [{ focusMode: "manual", focusDistance: elementRange.value, }] }).then(() => drawDomConsole("setting", track.getSettings()));
+			elementRange.addEventListener("input", setFocus);
+			return elementRange;
+		})());
+	}
+};
+
+document.addEventListener("DOMContentLoaded", async event => {
+	if (!navigator.mediaDevices) { return; }
+	if (!navigator.mediaDevices.enumerateDevices) { return; }
+
+	let devices = await navigator.mediaDevices.enumerateDevices();
+	devices = devices.filter(device => device.kind === "videoinput");
+
+	devices.forEach((device, index) => {
+		if (device.kind !== "videoinput") { return; }
+		const option = document.createElement("option");
+		option.value = device.deviceId;
+		option.innerHTML = `device${index} ${device.label}`;
+		document.getElementById("selectDevices").appendChild(option);
+	});
+
+	document.getElementById("buttonCamera").addEventListener("click", async  event => {
+		const prevStream = document.getElementById("video").srcObject;
+		if (prevStream !== null) { prevStream.getTracks().forEach(track => track.stop()); }
+
+		const deviceId = document.getElementById("selectDevices").value;
+		const stream = await navigator.mediaDevices.getUserMedia({ video: { deviceId, }, audio: false, });
+		document.getElementById("video").srcObject = stream;
+
+		const track = stream.getVideoTracks()[0];
+		drawDomConsole("supported1", navigator.mediaDevices.getSupportedConstraints());
+		drawDomConsole("supported2", track.getCapabilities());
+		drawDomConsole("setting", track.getSettings());
+
+		// test
+		track.applyConstraints({ advanced: [{ pointsOfInterest: [{ x: 0, y: 0, }], }] });
+
+		checkFocusMode();
+	});
+});
+
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+	</script>
+</body></html>
