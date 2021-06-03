@@ -112,9 +112,6 @@ document.addEventListener("DOMContentLoaded", async event => {
 		drawDomConsole("supported2", track.getCapabilities());
 		drawDomConsole("setting", track.getSettings());
 
-		// test
-		track.applyConstraints({ advanced: [{ pointsOfInterest: [{ x: 0, y: 0, }], }] });
-
 		checkFocusMode();
 	});
 });
