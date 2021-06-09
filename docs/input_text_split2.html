@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html><head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<style type="text/css">
+		body { margin: 0; overflow: hidden; background-color: rgb(255, 255, 128); }
+		#app { display: flex; flex-direction: column; justify-content: center; align-items: center; }
+		#app { position: absolute; left: 0; right: 0; top: 0; bottom: 0; }
+	</style>
+</head><body>
+	<div id="app">
+		<component-test />
+	</div>
+	<script src="https://unpkg.com/vue@2.6.2/dist/vue.js"></script>
+	<script type="text/javascript">
+"use strict";
+
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+
+// コンポーネント
+Vue.component("component-input", {
+	props: {
+		value: { type: String, }
+	},
+	methods: {
+		onBlur: function() {
+			let tempValue = this.value;
+			tempValue = tempValue.replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xfee0));
+			tempValue = tempValue.replace(/[^0-9]/g, "");
+			tempValue = tempValue.replace(/^([^ ]{12})(.+)$/, "$1");
+			tempValue = tempValue.replace(/^([^ ]{8})(.+)$/, "$1 $2");
+			tempValue = tempValue.replace(/^([^ ]{4})(.+)$/, "$1 $2");
+			this.$emit("input", tempValue);
+		},
+	},
+	computed: {
+		localValue: {
+			get: function() { return this.value; },
+			set: function(value) { this.$emit("input", value); },
+		},
+	},
+	template: `
+		<input
+			type="text"
+			placeholder="免許証番号を入力"
+			v-model="localValue"
+			@blur="onBlur"
+		/>
+	`,
+});
+
+// コンポーネント
+Vue.component("component-test", {
+	data: function() {
+		return {
+			value: "",
+		};
+	},
+	template: `
+		<div>
+			<span>免許証番号</span>
+			<component-input v-model="value" />
+		</div>
+	`,
+});
+
+// 処理はここから始まる
+document.addEventListener("DOMContentLoaded", e => {
+	const app = new Vue({el: "#app",});
+});
+
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+	</script>
+</body></html>
