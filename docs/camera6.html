@@ -4,7 +4,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>camera</title>
 	<style type="text/css">
-		body { margin: 0; overflow: hidden; background-color: brown; }
+		body { margin: 0; overflow: hidden; background-color: white; }
 		#root { display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start; }
 		#root { position: absolute; left: 0; right: 0; top: 0; bottom: 0; padding: 20px; overflow: scroll; }
 	</style>
@@ -33,12 +33,7 @@
 // ----------------------------------------------------------------
 // ----------------------------------------------------------------
 
-document.getElementById("textareaConstraints").value = `{
-	"advanced": [{
-		"focusMode": "manual",
-		"pointsOfInterest": [{ "x": 0, "y": 0 }]
-	}]
-}`;
+document.getElementById("textareaConstraints").value = `{ "advanced": [{ "pointsOfInterest": [{ "x": 1.0, "y": 1.0 }] }] }`;
 
 const drawDomConsole = (id, info) => {
 	let value = JSON.stringify(info, null, "  ");
