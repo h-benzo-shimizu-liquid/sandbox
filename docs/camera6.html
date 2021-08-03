@@ -4,7 +4,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>camera</title>
 	<style type="text/css">
-		body { margin: 0; overflow: hidden; background-color: white; }
+		body { margin: 0; overflow: hidden; background-color: pink; }
 		#root { display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start; }
 		#root { position: absolute; left: 0; right: 0; top: 0; bottom: 0; padding: 20px; overflow: scroll; }
 	</style>
@@ -18,6 +18,8 @@
 		<video id="video" width="240" height="240" autoplay playsinline ></video>
 		<div id="divFocus"></div>
 		<br>
+		<textarea id="textareaConstraints" rows="6" cols="40"></textarea>
+		<br>
 		<div id="setting" style="width: 300px; background-color: silver;"></div>
 		<br>
 		<div id="supported2" style="width: 300px; background-color: silver;"></div>
@@ -30,6 +32,10 @@
 // ----------------------------------------------------------------
 // ----------------------------------------------------------------
 // ----------------------------------------------------------------
+
+document.getElementById("textareaConstraints").value = `{
+	pointsOfInterest: [{ x: 0, y: 0, }], }]
+}`;
 
 const drawDomConsole = (id, info) => {
 	let value = JSON.stringify(info, null, "  ");
@@ -112,6 +118,8 @@ document.addEventListener("DOMContentLoaded", async event => {
 		drawDomConsole("supported1", navigator.mediaDevices.getSupportedConstraints());
 		drawDomConsole("supported2", track.getCapabilities());
 		drawDomConsole("setting", track.getSettings());
+
+		track.applyConstraints(JSON.parse(document.getElementById("textareaConstraints").value));
 
 		checkFocusMode();
 	});
