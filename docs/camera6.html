@@ -4,7 +4,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>camera</title>
 	<style type="text/css">
-		body { margin: 0; overflow: hidden; background-color: red; }
+		body { margin: 0; overflow: hidden; background-color: yellow; }
 		#root { display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start; }
 		#root { position: absolute; left: 0; right: 0; top: 0; bottom: 0; padding: 20px; overflow: scroll; }
 	</style>
@@ -34,7 +34,7 @@
 // ----------------------------------------------------------------
 
 document.getElementById("textareaConstraints").value = `{
-	pointsOfInterest: [{ x: 0, y: 0, }], }]
+	"pointsOfInterest": [{ "x": 0, "y": 0 }]
 }`;
 
 const drawDomConsole = (id, info) => {
@@ -106,7 +106,7 @@ document.addEventListener("DOMContentLoaded", async event => {
 		document.getElementById("selectDevices").appendChild(option);
 	});
 
-	document.getElementById("buttonCamera").addEventListener("click", async  event => {
+	document.getElementById("buttonCamera").addEventListener("click", async event => {
 		const prevStream = document.getElementById("video").srcObject;
 		if (prevStream !== null) { prevStream.getTracks().forEach(track => track.stop()); }
 
@@ -115,11 +115,10 @@ document.addEventListener("DOMContentLoaded", async event => {
 		document.getElementById("video").srcObject = stream;
 
 		const track = stream.getVideoTracks()[0];
+		track.applyConstraints(JSON.parse(document.getElementById("textareaConstraints").value));
 		drawDomConsole("supported1", navigator.mediaDevices.getSupportedConstraints());
 		drawDomConsole("supported2", track.getCapabilities());
 		drawDomConsole("setting", track.getSettings());
-
-		track.applyConstraints(JSON.parse(document.getElementById("textareaConstraints").value));
 
 		checkFocusMode();
 	});
