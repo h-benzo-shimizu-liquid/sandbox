@@ -4,7 +4,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>camera</title>
 	<style type="text/css">
-		body { margin: 0; overflow: hidden; background-color: pink; }
+		body { margin: 0; overflow: hidden; background-color: red; }
 		#root { display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start; }
 		#root { position: absolute; left: 0; right: 0; top: 0; bottom: 0; padding: 20px; overflow: scroll; }
 	</style>
@@ -14,11 +14,11 @@
 		<div>
 			<select id="selectDevices"></select>
 			<button id="buttonCamera">カメラ起動</button>
+			<br>
+			<textarea id="textareaConstraints" style="width: 300px; min-height: 60px;"></textarea>
 		</div>
 		<video id="video" width="240" height="240" autoplay playsinline ></video>
 		<div id="divFocus"></div>
-		<br>
-		<textarea id="textareaConstraints" rows="6" cols="40"></textarea>
 		<br>
 		<div id="setting" style="width: 300px; background-color: silver;"></div>
 		<br>
