@@ -41,7 +41,7 @@
 document.addEventListener("DOMContentLoaded", event => {
 	window.addEventListener("message", event => {
 		if (event.data.action === "size_ask") {
-			document.parent.postMessage({
+			window.parent.postMessage({
 				action: "size_ans",
 				message: JSON.stringify({
 					width: window.innerWidth,
