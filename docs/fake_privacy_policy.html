@@ -44,8 +44,8 @@ document.addEventListener("DOMContentLoaded", event => {
 			window.parent.postMessage({
 				action: "size_ans",
 				message: JSON.stringify({
-					scrollWidth: window.scrollWidth,
-					scrollHeight: window.scrollHeight,
+					scrollWidth: window.document.body.scrollWidth,
+					scrollHeight: window.document.body.scrollHeight,
 				}),
 			}, "*");
 		}
