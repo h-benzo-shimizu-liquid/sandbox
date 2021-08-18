@@ -41,10 +41,11 @@
 document.addEventListener("DOMContentLoaded", event => {
 	window.addEventListener("message", event => {
 		if (event.data.action === "size_ask") {
+			const element = document.getElementsByTagName("html").item(0);
 			window.parent.postMessage({
 				action: "size_ans",
-				scrollWidth: window.document.body.scrollWidth,
-				scrollHeight: window.document.body.scrollHeight,
+				scrollWidth: element.scrollWidth,
+				scrollHeight: element.scrollHeight,
 			}, "*");
 		}
 	});
