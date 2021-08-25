@@ -39,12 +39,16 @@
 "use strict"
 
 document.addEventListener("DOMContentLoaded", event => {
-	const element = document.getElementsByTagName("html").item(0);
-	window.parent.postMessage({
-		action: "size",
-		scrollWidth: element.scrollWidth,
-		scrollHeight: element.scrollHeight,
-	}, "*");
+	window.addEventListener("message", event => {
+		if (event.data.action === "size_ask") {
+			const element = document.getElementsByTagName("html").item(0);
+			window.parent.postMessage({
+				action: "size_ans",
+				scrollWidth: element.scrollWidth,
+				scrollHeight: element.scrollHeight,
+			}, "*");
+		}
+	});
 });
 
 // ----------------------------------------------------------------
