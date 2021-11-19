@@ -3,22 +3,14 @@
 // ----------------------------------------------------------------
 // ----------------------------------------------------------------
 
-{
-	"compilerOptions": {
-		"target": "es6",
-		"module": "esNext",
-		"moduleResolution": "node",
-		"jsx": "react",
+import * as React from "react";
+import * as ReactDOM from "react-dom";
+import ComponentMain from "@/component/ComponentMain";
 
-		"strict": true,
-		"noImplicitReturns": true,
-		"noUnusedLocals": true,
-		"noUnusedParameters": false,
-
-		"baseUrl": "./",
-		"paths": { "@/*": ["src/*",], },
-	},
-}
+// 処理はここから始まる
+document.addEventListener("DOMContentLoaded", (event: Event): void => {
+	ReactDOM.render(React.createElement(ComponentMain), document.getElementById("app"));
+});
 
 // ----------------------------------------------------------------
 // ----------------------------------------------------------------

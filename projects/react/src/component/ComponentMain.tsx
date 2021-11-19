@@ -10,8 +10,8 @@ import {
 	Route,
 	Link,
 } from "react-router-dom";
-import ComponentPageTest1 from "./ComponentPageTest1";
-import ComponentPageTest2 from "./ComponentPageTest2";
+import ComponentPageTest1 from "@/component/ComponentPageTest1";
+import ComponentPageTest2 from "@/component/ComponentPageTest2";
 
 const Component: React.FunctionComponent<{}> = (): JSX.Element => {
 	return <div>
