@@ -14,11 +14,17 @@
 		<video id="video" width="240" height="240" autoplay playsinline ></video>
 		<div id="divFocus"></div>
 		<br>
-		<div id="setting" style="width: 300px; background-color: silver;"></div>
+		<div>navigator.mediaDevices.getSupportedConstraints</div>
+		<div id="settingField1" style="width: 300px; background-color: silver;"></div>
 		<br>
-		<div id="supported2" style="width: 300px; background-color: silver;"></div>
+		<div>track.getConstraints</div>
+		<div id="settingField2" style="width: 300px; background-color: silver;"></div>
 		<br>
-		<div id="supported1" style="width: 300px; background-color: silver;"></div>
+		<div>track.getCapabilities</div>
+		<div id="settingField3" style="width: 300px; background-color: silver;"></div>
+		<br>
+		<div>track.getSettings</div>
+		<div id="settingField4" style="width: 300px; background-color: silver;"></div>
 	</div>
 	<script type="text/javascript">
 "use strict";
@@ -35,10 +41,13 @@ document.addEventListener("DOMContentLoaded", async event => {
 	document.getElementById("video").srcObject = stream;
 
 	const track = stream.getVideoTracks()[0];
-	const getTrackInfo = (id, info) => { document.getElementById(id).innerHTML = JSON.stringify(info, null, "  ").replace(/("focusMode": ".*",)/g, '<span style="color: red">$1</span>'); }
-	getTrackInfo("supported1", navigator.mediaDevices.getSupportedConstraints());
-	getTrackInfo("supported2", track.getCapabilities());
-	getTrackInfo("setting", track.getSettings());
+	const getTrackInfoColor = index => index % 2 === 0 ? "#cccccc" : "#eeeeee";
+	const getTrackInfoDiv = (key, value, index) => `<div style="background-color: ${getTrackInfoColor(index)};">${key}: ${JSON.stringify(value)}</div>`;
+	const getTrackInfo = (id, info) => { document.getElementById(id).innerHTML = Object.keys(info).map((key, index) => getTrackInfoDiv(key, info[key], index)).join(""); }
+	getTrackInfo("settingField1", navigator.mediaDevices.getSupportedConstraints());
+	getTrackInfo("settingField2", track.getConstraints());
+	getTrackInfo("settingField3", track.getCapabilities());
+	getTrackInfo("settingField4", track.getSettings());
 
 	if (track.getCapabilities().focusDistance) {
 		document.getElementById("divFocus").appendChild((() =>{
