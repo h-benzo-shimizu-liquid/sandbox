@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", async event => {
 
 	const devices = await navigator.mediaDevices.enumerateDevices();
 	document.getElementById("settingField0").innerHTML = devices
-		.filter(device => device.kind === "videoinput")
+		//.filter(device => device.kind === "videoinput")
 		.map(device => ({
 			deviceId: device.deviceId,
 			groupId: device.groupId,
