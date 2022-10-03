@@ -14,6 +14,9 @@
 		<video id="video" width="240" height="240" autoplay playsinline ></video>
 		<div id="divFocus"></div>
 		<br>
+		<div>devices</div>
+		<div id="settingField0" style="width: 300px; background-color: silver;"></div>
+		<br>
 		<div>navigator.mediaDevices.getSupportedConstraints</div>
 		<div id="settingField1" style="width: 300px; background-color: silver;"></div>
 		<br>
@@ -40,10 +43,22 @@ document.addEventListener("DOMContentLoaded", async event => {
 	});
 	document.getElementById("video").srcObject = stream;
 
+	const getInfoDiv = (key, value, index, color1, color2) => `<div style="background-color: ${index % 2 === 0 ? color1 : color2};">${key}: ${JSON.stringify(value)}</div>`;
+
+	const devices = await navigator.mediaDevices.enumerateDevices();
+	document.getElementById("settingField0").innerHTML = devices
+		.filter(device => device.kind === "videoinput")
+		.map(device => ({
+			deviceId: device.deviceId,
+			groupId: device.groupId,
+			kind: device.kind,
+			label: device.label,
+		}))
+		.map(device => Object.keys(device).map((key, index) => getInfoDiv(key, device[key], index, "#cccccc", "#eeeeee")).join(""))
+		.map(element => `<div style="padding: 10px;">${element}</div>`)
+
 	const track = stream.getVideoTracks()[0];
-	const getTrackInfoColor = index => index % 2 === 0 ? "#cccccc" : "#eeeeee";
-	const getTrackInfoDiv = (key, value, index) => `<div style="background-color: ${getTrackInfoColor(index)};">${key}: ${JSON.stringify(value)}</div>`;
-	const getTrackInfo = (id, info) => { document.getElementById(id).innerHTML = Object.keys(info).map((key, index) => getTrackInfoDiv(key, info[key], index)).join(""); }
+	const getTrackInfo = (id, info) => document.getElementById(id).innerHTML = Object.keys(info).map((key, index) => getInfoDiv(key, info[key], index, "#cccccc", "#eeeeee")).join("");
 	getTrackInfo("settingField1", navigator.mediaDevices.getSupportedConstraints());
 	getTrackInfo("settingField2", track.getConstraints());
 	getTrackInfo("settingField3", track.getCapabilities());
