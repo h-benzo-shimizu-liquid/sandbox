@@ -56,6 +56,7 @@ document.addEventListener("DOMContentLoaded", async event => {
 		}))
 		.map(device => Object.keys(device).map((key, index) => getInfoDiv(key, device[key], index, "#cccccc", "#eeeeee")).join(""))
 		.map(element => `<div style="padding: 10px;">${element}</div>`)
+		.join("")
 
 	const track = stream.getVideoTracks()[0];
 	const getTrackInfo = (id, info) => document.getElementById(id).innerHTML = Object.keys(info).map((key, index) => getInfoDiv(key, info[key], index, "#cccccc", "#eeeeee")).join("");
