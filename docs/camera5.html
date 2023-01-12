@@ -13,6 +13,7 @@
 		<h1>オートフォーカス(パラメータ確認/フォーカススライド)テスト</h1>
 		<video id="video" width="240" height="240" autoplay playsinline ></video>
 		<div id="divFocus"></div>
+		<div id="divIso"></div>
 		<br>
 		<div>devices</div>
 		<div id="settingField0" style="width: 300px; background-color: silver;"></div>
@@ -79,6 +80,29 @@ document.addEventListener("DOMContentLoaded", async event => {
 					elementRange.step = track.getCapabilities().focusDistance.step;
 					elementRange.value = track.getSettings().focusDistance;
 					const setFocus = () => track.applyConstraints({ advanced: [{ focusMode: "manual", focusDistance: elementRange.value, }] }).then(() => getTrackInfo("setting", track.getSettings()));
+					elementRange.addEventListener("input", setFocus);
+					setFocus();
+					return elementRange;
+				})());
+			});
+			return elementButton;
+		})());
+	}
+
+	if (track.getCapabilities().iso) {
+		document.getElementById("divIso").appendChild((() =>{
+			const elementButton = document.createElement("button");
+			elementButton.innerHTML = "手動Iso";
+			elementButton.addEventListener("click", event => {
+				document.getElementById("divIso").innerHTML = "";
+				document.getElementById("divIso").appendChild((() =>{
+					const elementRange = document.createElement("input");
+					elementRange.type = "range";
+					elementRange.min = track.getCapabilities().iso.min;
+					elementRange.max = track.getCapabilities().iso.max;
+					elementRange.step = track.getCapabilities().iso.step;
+					elementRange.value = track.getSettings().iso;
+					const setFocus = () => track.applyConstraints({ advanced: [{ iso: elementRange.value, }] }).then(() => getTrackInfo("setting", track.getSettings()));
 					elementRange.addEventListener("input", setFocus);
 					setFocus();
 					return elementRange;
