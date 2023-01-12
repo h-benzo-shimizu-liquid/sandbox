@@ -83,7 +83,7 @@ document.addEventListener("DOMContentLoaded", async event => {
 					elementRange.max = track.getCapabilities().colorTemperature.max;
 					elementRange.step = track.getCapabilities().colorTemperature.step;
 					elementRange.value = track.getSettings().colorTemperature;
-					const setValue = () => track.applyConstraints({ advanced: [{ focusMode: "manual", colorTemperature: elementRange.value, }] }).then(() => getTrackInfo("settingField4", track.getSettings()));
+					const setValue = () => track.applyConstraints({ advanced: [{ colorTemperature: elementRange.value, }] }).then(() => getTrackInfo("settingField4", track.getSettings()));
 					elementRange.addEventListener("input", setValue);
 					setValue();
 					return elementRange;
@@ -107,7 +107,7 @@ document.addEventListener("DOMContentLoaded", async event => {
 					elementRange.max = track.getCapabilities().exposureCompensation.max;
 					elementRange.step = track.getCapabilities().exposureCompensation.step;
 					elementRange.value = track.getSettings().exposureCompensation;
-					const setValue = () => track.applyConstraints({ advanced: [{ exposureMode: "manual", exposureCompensation: elementRange.value, }] }).then(() => getTrackInfo("settingField4", track.getSettings()));
+					const setValue = () => track.applyConstraints({ advanced: [{ exposureCompensation: elementRange.value, }] }).then(() => getTrackInfo("settingField4", track.getSettings()));
 					elementRange.addEventListener("input", setValue);
 					setValue();
 					return elementRange;
