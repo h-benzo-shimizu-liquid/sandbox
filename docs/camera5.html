@@ -12,8 +12,11 @@
 	<div id="root">
 		<h1>オートフォーカス(パラメータ確認/フォーカススライド)テスト</h1>
 		<video id="video" width="240" height="240" autoplay playsinline ></video>
-		<div id="divFocus"></div>
+		<div id="divColorTemperature"></div>
+		<div id="divExposureCompensation"></div>
+		<div id="divFocusDistance"></div>
 		<div id="divIso"></div>
+		<div id="divZoom"></div>
 		<br>
 		<div>devices</div>
 		<div id="settingField0" style="width: 300px; background-color: silver;"></div>
@@ -66,22 +69,71 @@ document.addEventListener("DOMContentLoaded", async event => {
 	getTrackInfo("settingField3", track.getCapabilities());
 	getTrackInfo("settingField4", track.getSettings());
 
-	if (track.getCapabilities().focusDistance) {
-		document.getElementById("divFocus").appendChild((() =>{
+	if (track.getCapabilities().colorTemperature) {
+		const div = document.getElementById("divColorTemperature");
+		div.appendChild((() =>{
 			const elementButton = document.createElement("button");
-			elementButton.innerHTML = "手動フォーカス";
+			elementButton.innerHTML = "手動色温度";
 			elementButton.addEventListener("click", event => {
-				document.getElementById("divFocus").innerHTML = "";
-				document.getElementById("divFocus").appendChild((() =>{
+				div.innerHTML = "";
+				div.appendChild((() =>{
+					const elementRange = document.createElement("input");
+					elementRange.type = "range";
+					elementRange.min = track.getCapabilities().colorTemperature.min;
+					elementRange.max = track.getCapabilities().colorTemperature.max;
+					elementRange.step = track.getCapabilities().colorTemperature.step;
+					elementRange.value = track.getSettings().colorTemperature;
+					const setValue = () => track.applyConstraints({ advanced: [{ focusMode: "manual", colorTemperature: elementRange.value, }] }).then(() => getTrackInfo("settingField4", track.getSettings()));
+					elementRange.addEventListener("input", setValue);
+					setValue();
+					return elementRange;
+				})());
+			});
+			return elementButton;
+		})());
+	}
+
+	if (track.getCapabilities().exposureCompensation) {
+		const div = document.getElementById("divExposureCompensation");
+		div.appendChild((() =>{
+			const elementButton = document.createElement("button");
+			elementButton.innerHTML = "手動露出補正";
+			elementButton.addEventListener("click", event => {
+				div.innerHTML = "";
+				div.appendChild((() =>{
+					const elementRange = document.createElement("input");
+					elementRange.type = "range";
+					elementRange.min = track.getCapabilities().exposureCompensation.min;
+					elementRange.max = track.getCapabilities().exposureCompensation.max;
+					elementRange.step = track.getCapabilities().exposureCompensation.step;
+					elementRange.value = track.getSettings().exposureCompensation;
+					const setValue = () => track.applyConstraints({ advanced: [{ exposureMode: "manual", exposureCompensation: elementRange.value, }] }).then(() => getTrackInfo("settingField4", track.getSettings()));
+					elementRange.addEventListener("input", setValue);
+					setValue();
+					return elementRange;
+				})());
+			});
+			return elementButton;
+		})());
+	}
+
+	if (track.getCapabilities().focusDistance) {
+		const div = document.getElementById("divFocusDistance");
+		div.appendChild((() =>{
+			const elementButton = document.createElement("button");
+			elementButton.innerHTML = "手動焦点距離";
+			elementButton.addEventListener("click", event => {
+				div.innerHTML = "";
+				div.appendChild((() =>{
 					const elementRange = document.createElement("input");
 					elementRange.type = "range";
 					elementRange.min = track.getCapabilities().focusDistance.min;
 					elementRange.max = track.getCapabilities().focusDistance.max;
 					elementRange.step = track.getCapabilities().focusDistance.step;
 					elementRange.value = track.getSettings().focusDistance;
-					const setFocus = () => track.applyConstraints({ advanced: [{ focusMode: "manual", focusDistance: elementRange.value, }] }).then(() => getTrackInfo("settingField4", track.getSettings()));
-					elementRange.addEventListener("input", setFocus);
-					setFocus();
+					const setValue = () => track.applyConstraints({ advanced: [{ focusMode: "manual", focusDistance: elementRange.value, }] }).then(() => getTrackInfo("settingField4", track.getSettings()));
+					elementRange.addEventListener("input", setValue);
+					setValue();
 					return elementRange;
 				})());
 			});
@@ -90,21 +142,46 @@ document.addEventListener("DOMContentLoaded", async event => {
 	}
 
 	if (track.getCapabilities().iso) {
-		document.getElementById("divIso").appendChild((() =>{
+		const div = document.getElementById("divIso");
+		div.appendChild((() =>{
 			const elementButton = document.createElement("button");
 			elementButton.innerHTML = "手動Iso";
 			elementButton.addEventListener("click", event => {
-				document.getElementById("divIso").innerHTML = "";
-				document.getElementById("divIso").appendChild((() =>{
+				div.innerHTML = "";
+				div.appendChild((() =>{
 					const elementRange = document.createElement("input");
 					elementRange.type = "range";
 					elementRange.min = track.getCapabilities().iso.min;
 					elementRange.max = track.getCapabilities().iso.max;
 					elementRange.step = track.getCapabilities().iso.step;
 					elementRange.value = track.getSettings().iso;
-					const setIso = () => track.applyConstraints({ advanced: [{ iso: elementRange.value, }] }).then(() => getTrackInfo("settingField4", track.getSettings()));
-					elementRange.addEventListener("input", setIso);
-					setIso();
+					const setValue = () => track.applyConstraints({ advanced: [{ iso: elementRange.value, }] }).then(() => getTrackInfo("settingField4", track.getSettings()));
+					elementRange.addEventListener("input", setValue);
+					setValue();
+					return elementRange;
+				})());
+			});
+			return elementButton;
+		})());
+	}
+
+	if (track.getCapabilities().zoom) {
+		const div = document.getElementById("divZoom");
+		div.appendChild((() =>{
+			const elementButton = document.createElement("button");
+			elementButton.innerHTML = "手動Zoom";
+			elementButton.addEventListener("click", event => {
+				div.innerHTML = "";
+				div.appendChild((() =>{
+					const elementRange = document.createElement("input");
+					elementRange.type = "range";
+					elementRange.min = track.getCapabilities().zoom.min;
+					elementRange.max = track.getCapabilities().zoom.max;
+					elementRange.step = track.getCapabilities().zoom.step;
+					elementRange.value = track.getSettings().zoom;
+					const setValue = () => track.applyConstraints({ advanced: [{ zoom: elementRange.value, }] }).then(() => getTrackInfo("settingField4", track.getSettings()));
+					elementRange.addEventListener("input", setValue);
+					setValue();
 					return elementRange;
 				})());
 			});
