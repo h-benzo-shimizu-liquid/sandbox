@@ -102,9 +102,9 @@ document.addEventListener("DOMContentLoaded", async event => {
 					elementRange.max = track.getCapabilities().iso.max;
 					elementRange.step = track.getCapabilities().iso.step;
 					elementRange.value = track.getSettings().iso;
-					const setFocus = () => track.applyConstraints({ advanced: [{ iso: elementRange.value, }] }).then(() => getTrackInfo("setting", track.getSettings()));
-					elementRange.addEventListener("input", setFocus);
-					setFocus();
+					const setIso = () => track.applyConstraints({ iso: elementRange.value, }).then(() => getTrackInfo("setting", track.getSettings()));
+					elementRange.addEventListener("input", setIso);
+					setIso();
 					return elementRange;
 				})());
 			});
