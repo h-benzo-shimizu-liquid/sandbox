@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html><head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>camera</title>
+</head><body>
+	<pre id="root"></pre>
+	<script type="text/javascript">
+"use strict";
+
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+
+document.addEventListener("DOMContentLoaded", async event => {
+	const stream = await navigator.mediaDevices.getUserMedia({
+		video: true,
+		audio: false,
+	});
+
+	const devices = await navigator.mediaDevices.enumerateDevices();
+
+	document.getElementById("root").innerHTML = JSON.stringify({
+		ua: window.navigator.userAgent,
+		devices: devices.map(device => ({
+			kind: device.kind,
+			label: device.label,
+		})),
+	}, null, 2);
+});
+
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+	</script>
+</body></html>
