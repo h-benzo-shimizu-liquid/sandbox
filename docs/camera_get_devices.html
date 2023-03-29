@@ -23,6 +23,8 @@ document.addEventListener("DOMContentLoaded", async event => {
 	document.getElementById("root").innerHTML = JSON.stringify({
 		ua: window.navigator.userAgent,
 		devices: devices.map(device => ({
+			deviceId: device.deviceId,
+			groupId: device.groupId,
 			kind: device.kind,
 			label: device.label,
 		})),
