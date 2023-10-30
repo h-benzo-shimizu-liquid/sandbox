@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html><head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>index</title>
+	<style type="text/css">
+		body { margin: 0; overflow: hidden; }
+	</style>
+</head><body>
+	<div id="root">
+		<textarea id="query" cols="40" rows="5"></textarea>
+	</div>
+	<script type="text/javascript">
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+
+// 読み込みが終わったら処理開始
+document.addEventListener("DOMContentLoaded", event => {
+	document.getElementById("query").innerHTML = JSON.stringify(Object.fromEntries([...new URLSearchParams(window.location.search).entries()]), null , "\t");
+});
+
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+	</script>
+</body></html>
