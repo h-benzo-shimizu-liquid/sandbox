@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html><head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>index</title>
+	<style type="text/css">
+		body { margin: 0; overflow: hidden; }
+		#root { display: flex; flex-direction: column; justify-content: center; align-items: center; }
+		#root { position: absolute; left: 0; right: 0; top: 0; bottom: 0; }
+	</style>
+</head><body>
+	<div id="root">
+		<textarea id="orientation"></textarea>
+	</div>
+	<script type="text/javascript">
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+
+// 読み込みが終わったら処理開始
+document.addEventListener("DOMContentLoaded", (event) => {
+	const div = document.getElementById("orientation");
+	window.setInterval(() => {
+		div.value = `${window.screen.orientation.type}\n${window.screen.orientation.angle}`;
+	}, 1000);
+});
+
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+	</script>
+</body></html>
