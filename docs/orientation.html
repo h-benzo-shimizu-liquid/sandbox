@@ -9,19 +9,26 @@
 	</style>
 </head><body>
 	<div id="root">
-		<textarea id="orientation"></textarea>
+		<textarea id="orientation" rows="6" cols="50"></textarea>
 	</div>
 	<script type="text/javascript">
 // ----------------------------------------------------------------
 // ----------------------------------------------------------------
 // ----------------------------------------------------------------
 
+function check() {
+	const div = document.getElementById("orientation");
+	if (window.screen && window.screen.orientation) {
+		div.value = `window.screen.orientation\n${window.screen.orientation.type}\n${window.screen.orientation.angle}`;
+	} else {
+		div.value = `window.orientation\n${window.orientation}`;
+	}
+}
+
 // 読み込みが終わったら処理開始
 document.addEventListener("DOMContentLoaded", (event) => {
-	const div = document.getElementById("orientation");
-	window.setInterval(() => {
-		div.value = `${window.screen.orientation.type}\n${window.screen.orientation.angle}`;
-	}, 1000);
+	check();
+	window.setInterval(check, 1000);
 });
 
 // ----------------------------------------------------------------
