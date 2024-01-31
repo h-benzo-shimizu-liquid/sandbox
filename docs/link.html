@@ -1,0 +1,34 @@
+<html><head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>リンクテスト</title>
+	<style type="text/css">
+		body { margin: 0; }
+	</style>
+</head><body>
+	<textarea>https://google.com</textarea>
+	<button>button1</button>
+	<button>button2</button>
+	<script type="text/javascript">
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+
+const elTextarea = document.getElementsByTagName('textarea').item(0);
+const elButton1 = document.getElementsByTagName('button').item(0);
+const elButton2 = document.getElementsByTagName('button').item(1);
+
+elButton1.addEventListener('click', () => {
+	window.location.href = elTextarea.value;
+});
+
+elButton2.addEventListener('click', () => {
+	window.setTimeout(() => {
+		window.location.href = elTextarea.value;
+	}, 1000);
+});
+
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+	</script>
+</body></html>
