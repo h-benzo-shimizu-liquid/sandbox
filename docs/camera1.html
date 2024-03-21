@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html><head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
 	<title>camera1</title>
 	<style type="text/css">
-		body { margin: 0; overflow: hidden; background-color: rgb(255, 128, 128); }
+		body { margin: 0; overflow: hidden; background-color: rgb(196, 196, 196); }
 		#root { display: flex; flex-direction: column; justify-content: center; align-items: center; }
 		#root { position: absolute; left: 0; right: 0; top: 0; bottom: 0; }
+		#video { background-color: black; }
 	</style>
 </head><body>
 	<div id="root">
-		<div>普通のカメラ</div>
-		<video id="video" width="240" height="240" autoplay playsinline ></video>
+		<div>カメラ</div>
+		<div><video id="video" width="240" height="240" autoplay playsinline ></video></div>
 		<div id="console"></div>
 	</div>
 	<script type="text/javascript">
@@ -21,15 +23,16 @@
 // ----------------------------------------------------------------
 
 document.addEventListener("DOMContentLoaded", e => {
-	document.getElementById("console").innerHTML = "wait";
+	const divConsole = document.getElementById("console");
+	divConsole.innerHTML = "wait";	
 	navigator.mediaDevices.getUserMedia({
 		video: { facingMode: "environment" },
 		audio: false,
 	}).then(stream => {
 		document.getElementById("video").srcObject = stream;
-		document.getElementById("console").innerHTML = `success ${video}`;
+		divConsole.innerHTML = `success ${video}`;
 	}).catch(error => {
-		document.getElementById("console").innerHTML = `failed ${error} ${error.message}`;
+		divConsole.innerHTML = `failed ${error} ${error.message}`;
 	});
 });
 
