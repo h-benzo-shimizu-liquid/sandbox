@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html><head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>camera1</title>
+	<style type="text/css">
+		body { margin: 0; overflow: hidden; background-color: rgb(128, 128, 128); }
+		#root { display: flex; flex-direction: column; justify-content: center; align-items: center; }
+		#root { position: absolute; left: 0; right: 0; top: 0; bottom: 0; }
+		#video { background-color: black; }
+	</style>
+</head><body>
+	<div id="root">
+		<div>カメラ</div>
+		<div><video id="video" width="240" height="240" autoplay playsinline ></video></div>
+		<div><button id="button">start</button></div>
+		<div id="console"></div>
+	</div>
+	<script type="text/javascript">
+"use strict";
+
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+
+document.addEventListener("DOMContentLoaded", e => {
+	const button = document.getElementById("button");
+	const divConsole = document.getElementById("console");
+	divConsole.innerHTML = "ready";	
+	button.addEventListener("click", () => {
+		button.disabled = true;
+		divConsole.innerHTML = "wait";
+		navigator.mediaDevices.getUserMedia({
+			video: { facingMode: "environment" },
+			audio: false,
+		}).then(stream => {
+			document.getElementById("video").srcObject = stream;
+			divConsole.innerHTML = `success ${video}`;
+		}).catch(error => {
+			divConsole.innerHTML = `failed ${error} ${error.message}`;
+		});
+	});
+});
+
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+	</script>
+</body></html>
