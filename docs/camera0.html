@@ -13,7 +13,10 @@
 	<div id="root">
 		<div>カメラ</div>
 		<div><video id="video" width="240" height="240" autoplay playsinline ></video></div>
-		<div><button id="button">start</button></div>
+		<div>
+			<button id="button1">前面</button>
+			<button id="button2">背面</button>
+		</div>
 		<div id="console"></div>
 	</div>
 	<script type="text/javascript">
@@ -23,23 +26,29 @@
 // ----------------------------------------------------------------
 // ----------------------------------------------------------------
 
-document.addEventListener("DOMContentLoaded", e => {
-	const button = document.getElementById("button");
-	const divConsole = document.getElementById("console");
-	divConsole.innerHTML = "ready";	
-	button.addEventListener("click", () => {
-		button.disabled = true;
-		divConsole.innerHTML = "wait";
-		navigator.mediaDevices.getUserMedia({
-			video: { facingMode: "user" },
-			audio: false,
-		}).then(stream => {
-			document.getElementById("video").srcObject = stream;
-			divConsole.innerHTML = `success ${video}`;
-		}).catch(error => {
-			divConsole.innerHTML = `failed ${error} ${error.message}`;
-		});
+const handlerClickButton = facingMode => {
+	document.getElementById("button1").disabled = true;
+	document.getElementById("button2").disabled = true;
+	document.getElementById("console").innerHTML = "wait";
+	navigator.mediaDevices.getUserMedia({
+		video: { facingMode },
+		audio: false,
+	}).then(stream => {
+		document.getElementById("video").srcObject = stream;
+		document.getElementById("console").innerHTML = `success ${video}`;
+	}).catch(error => {
+		document.getElementById("console").innerHTML = `failed ${error} ${error.message}`;
 	});
+
+}
+
+document.addEventListener("DOMContentLoaded", e => {
+	const button1 = document.getElementById("button");
+	const button2 = document.getElementById("button");
+	const divConsole = document.getElementById("console");
+	document.getElementById("console").innerHTML = "ready";
+	document.getElementById("button1").addEventListener("click", () => handlerClickButton("user"));
+	document.getElementById("button2").addEventListener("click", () => handlerClickButton("environment"));
 });
 
 // ----------------------------------------------------------------
