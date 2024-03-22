@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", e => {
 		button.disabled = true;
 		divConsole.innerHTML = "wait";
 		navigator.mediaDevices.getUserMedia({
-			video: { facingMode: "environment" },
+			video: { facingMode: "user" },
 			audio: false,
 		}).then(stream => {
 			document.getElementById("video").srcObject = stream;

@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", e => {
 	const divConsole = document.getElementById("console");
 	divConsole.innerHTML = "wait";	
 	navigator.mediaDevices.getUserMedia({
-		video: { facingMode: "environment" },
+		video: { facingMode: "user" },
 		audio: false,
 	}).then(stream => {
 		document.getElementById("video").srcObject = stream;
