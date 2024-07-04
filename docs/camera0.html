@@ -4,7 +4,7 @@
 	<meta name="viewport" content="width=device-width,initial-scale=1.0">
 	<title>camera1</title>
 	<style type="text/css">
-		body { margin: 0; overflow: hidden; background-color: rgb(128, 128, 128); }
+		body { margin: 0; overflow: hidden; background-color: rgb(0, 128, 128); }
 		#root { display: flex; flex-direction: column; justify-content: center; align-items: center; }
 		#root { position: absolute; left: 0; right: 0; top: 0; bottom: 0; }
 		#video { background-color: black; }
@@ -27,8 +27,8 @@
 // ----------------------------------------------------------------
 
 const handlerClickButton = facingMode => {
-	document.getElementById("button1").disabled = true;
-	document.getElementById("button2").disabled = true;
+	//document.getElementById("button1").disabled = true;
+	//document.getElementById("button2").disabled = true;
 	document.getElementById("console").innerHTML = "wait";
 	navigator.mediaDevices.getUserMedia({
 		video: { facingMode },
@@ -39,7 +39,6 @@ const handlerClickButton = facingMode => {
 	}).catch(error => {
 		document.getElementById("console").innerHTML = `failed ${error} ${error.message}`;
 	});
-
 }
 
 document.addEventListener("DOMContentLoaded", e => {
