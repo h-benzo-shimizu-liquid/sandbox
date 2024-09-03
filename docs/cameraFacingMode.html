@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html><head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>camera</title>
+	<style type="text/css">
+		body { margin: 0; overflow: hidden; background-color: white; }
+		#root { display: flex; flex-direction: column; justify-content: flex-start; align-items: center; }
+		#root { position: absolute; left: 0; right: 0; top: 0; bottom: 0; padding: 20px; overflow: scroll; }
+	</style>
+</head><body>
+	<div id="root">
+		<h1>facingMode確認</h1>
+	</div>
+	<script type="text/javascript">
+"use strict";
+
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+
+document.addEventListener("DOMContentLoaded", async event => {
+	const stream = await navigator.mediaDevices.getUserMedia({ video: true, });
+	stream.getTracks().forEach(track => track.stop());
+	document.getElementById("root").appendChild(await (async () => {
+		const div = document.createElement("div");
+		const devices1 = await navigator.mediaDevices.enumerateDevices();
+		const devices2 = devices1.filter(device => device.kind === "videoinput");
+		let count = 0;
+		for (const device of devices2) {
+			div.appendChild(await (async () => {
+				const div = document.createElement("div");
+				div.style.marginBottom = "10px";
+				div.style.backgroundColor = count++ % 2 === 0 ? "lightblue" : "lightgreen";
+
+				const constraints = { video: { deviceId: { exact: device.deviceId, }, }, };
+				const stream = await navigator.mediaDevices.getUserMedia(constraints);
+				const tracks = stream.getVideoTracks();
+
+				for (const track of tracks) {
+					const settings = track.getSettings();
+					for (const value of [settings.deviceId, device.deviceId, device.label, settings.facingMode,]) {
+						div.appendChild(await (async () => {
+							const div = document.createElement("div");
+							div.style.width = "240px";
+							div.style.whiteSpace = "nowrap";
+							div.style.overflow = "hidden";
+							div.style.textOverflow = "ellipsis";
+							div.innerHTML = value;
+							return div;
+						})());
+					}
+				}
+
+				//div.appendChild(await (async () => {
+				//	const video = document.createElement("video");
+				//	video.width = "240";
+				//	video.height = "240";
+				//	video.srcObject = stream;
+				//	video.playsinline = true;
+				//	video.autoplay = true;
+				//	return video;
+				//})());
+
+				stream.getTracks().forEach(track => track.stop());
+
+				return div;
+			})());
+		}
+		return div;
+	})());
+});
+
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+	</script>
+</body></html>
