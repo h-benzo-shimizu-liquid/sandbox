@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html><head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<title>camera1</title>
+	<style type="text/css">
+		body { margin: 0; overflow: hidden; background-color: white; }
+		#root { display: flex; flex-direction: column; justify-content: center; align-items: center; }
+		#root { position: absolute; left: 0; right: 0; top: 0; bottom: 0; padding: 20px; overflow: scroll; }
+		#root >div { user-select: none; }
+	</style>
+</head><body>
+	<div id="root">
+		<div>画面をタップ</div>
+	</div>
+	<script type="text/javascript">
+"use strict";
+
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+
+document.addEventListener('DOMContentLoaded', async e => {
+	document.getElementById('root').appendChild(await (async () => {
+		const canvas = document.createElement('canvas');
+		canvas.width = 256;
+		canvas.height = 256;
+		const context = canvas.getContext('2d');
+		context.fillStyle = 'black';
+		context.fillRect(0, 0, canvas.width, canvas.height);
+
+		const handler = (event) => {
+			// タップサイズのインジェクション対策だああああ
+			// https://developer.mozilla.org/ja/docs/Web/API/Touch/radiusX
+			const touch = event.changedTouches.item(0);
+			const r = Math.round(10 * (touch.radiusX + touch.radiusY) / 2);
+
+			const x = Math.round(canvas.width / 2);
+			const y = Math.round(canvas.height / 2);
+			context.strokeStyle = 'white';
+			context.fillStyle = 'black';
+			context.fillRect(0, 0, canvas.width, canvas.height);
+			context.beginPath();
+			context.arc(x, y, r, 0, 2 * Math.PI);
+			context.stroke();
+		}
+
+		document.addEventListener("touchstart", handler);
+		document.addEventListener("touchmove", handler);
+		document.addEventListener("touchend", handler);
+
+		return canvas;
+	})());
+});
+
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+	</script>
+</body></html>
