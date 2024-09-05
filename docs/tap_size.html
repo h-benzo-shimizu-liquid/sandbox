@@ -35,9 +35,10 @@ document.addEventListener('DOMContentLoaded', async e => {
 		const touch = event.changedTouches.item(0);
 		const r = Math.round(10 * (touch.radiusX + touch.radiusY) / 2);
 
-		const rx = Math.round(touch.radiusX * 1000) / 1000;
-		const ry = Math.round(touch.radiusY * 1000) / 1000;
-		document.getElementById('textarea').innerHTML = `(${rx}, ${ry})\n` + document.getElementById('textarea').innerHTML;
+		//const rx = Math.round(touch.radiusX * 1000) / 1000;
+		//const ry = Math.round(touch.radiusY * 1000) / 1000;
+		//document.getElementById('textarea').innerHTML = `(${rx}, ${ry})\n` + document.getElementById('textarea').innerHTML;
+		document.getElementById('textarea').innerHTML = `${touch.radiusX}\n` + document.getElementById('textarea').innerHTML;
 
 		const x = Math.round(canvas.width / 2);
 		const y = Math.round(canvas.height / 2);
