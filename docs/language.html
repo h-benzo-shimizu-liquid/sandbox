@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html><head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>index</title>
+	<style type="text/css">
+		body { margin: 0; overflow: hidden; }
+		#root { display: flex; flex-direction: column; justify-content: center; align-items: center; }
+		#root { position: absolute; left: 0; right: 0; top: 0; bottom: 0; }
+	</style>
+</head><body>
+	<div id="root">
+		<table>
+			<tbody>
+				<tr>
+					<td>window.navigator.language</td>
+					<td id="lang1"></td>
+				</tr>
+				<tr>
+					<td>window.navigator.languages</td>
+					<td id="lang2"></td>
+				</tr>
+				<tr>
+					<td>authの言語選択関数</td>
+					<td id="lang3"></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<script type="text/javascript">
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+
+// 読み込みが終わったら処理開始
+document.addEventListener("DOMContentLoaded", (event) => {
+	document.getElementById("lang1").innerHTML = JSON.stringify(window.navigator.language);
+	document.getElementById("lang2").innerHTML = JSON.stringify(window.navigator.languages);
+	document.getElementById("lang3").innerHTML = (() => {
+		let language = window.navigator.languages[0] ?? '';
+		if (language === '') { language = window.navigator.language; }
+		language = language.toLowerCase();
+		if (['ja', 'ja-jp'].includes(language)) { return 'ja'; }
+		if (['en', 'en-ca', 'en-gb', 'en-us'].includes(language)) { return 'en'; }
+		return 'en';
+	})();
+});
+
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+	</script>
+</body></html>
