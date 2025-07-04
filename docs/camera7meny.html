@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html><head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+	<title>たっぷりカメラ</title>
+	<style>
+		body {
+			margin: 0;
+			overflow-x: hidden;
+			overflow-y: scroll;
+			background-color: gray;
+		}
+
+		.parts-camera {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			margin: 10px;
+			padding: 10px;
+			border: 1px solid black;
+		}
+	</style>
+	<script type="importmap">
+		{
+			"imports": {
+				"react": "https://esm.sh/react@19",
+				"react-dom": "https://esm.sh/react-dom@19"
+			}
+		}
+	</script>
+	<script type="module" src="https://esm.sh/run"></script>
+</head><body>
+	<div id="root"></div>
+	<script type="text/babel">
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+
+const PartsCamera = ({ constraints }) => {
+	const refVideo = React.useRef(null);
+	const [isStop, setIsStop] = React.useState(true);
+	const [isStart, setIsStart] = React.useState(false);
+
+	const onClickStart = React.useCallback(() => {
+		(async () => {
+			setIsStop(false);
+			const stream = await navigator.mediaDevices.getUserMedia(constraints);
+			refVideo.current.srcObject = stream;
+			refVideo.current.play();
+			setIsStart(true);
+		})().catch(error => { throw error; });
+	}, [setIsStop, setIsStart, refVideo,]);
+
+	const onClickStop = React.useCallback(() => {
+		(async () => {
+			setIsStart(false);
+			const stream = refVideo.current.srcObject;
+			 stream.getTracks().forEach(track => track.stop());
+			setIsStop(true);
+		})().catch(error => { throw error; });
+	}, [setIsStop, setIsStart, refVideo,]);
+
+	return (
+		<div class="parts-camera">
+			<video id="video" width="240" height="240" autoplay playsinline ref={refVideo}></video>
+			<div>
+				<button onClick={onClickStart} disabled={!isStop}>start</button>
+				<button onClick={onClickStop} disabled={!isStart}>stop</button>
+			</div>
+		</div>
+	);
+};
+
+const App = () => {
+	const constraints1 = {
+		video: {
+			facingMode: "environment",
+			frameRate: 60,
+			width: 320,
+		},
+		audio: false,
+	};
+
+	const constraints2 = {
+		video: {
+			facingMode: "environment",
+			frameRate: 10,
+			width: 640,
+		},
+		audio: false,
+	};
+
+	const constraints3 = {
+		video: {
+			facingMode: "environment",
+			frameRate: 2,
+			width: 1280,
+		},
+		audio: false,
+	};
+
+	return (
+		<div>
+			<PartsCamera constraints={constraints1} />
+			<PartsCamera constraints={constraints2} />
+			<PartsCamera constraints={constraints3} />
+		</div>
+	);
+};
+
+const root = createRoot(document.getElementById('root'));
+root.render(<App />);
+
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+	</script>
+</body></html>
