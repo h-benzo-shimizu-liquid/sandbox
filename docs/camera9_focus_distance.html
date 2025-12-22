@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html><head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>テスト</title>
+	<style type="text/css">
+		body { margin: 20px; background-color: yellow; }
+	</style>
+</head><body>
+	<div id="root">
+		<div>
+			<button id="testButtonUser">user</button>
+			<button id="testButtonEnvironment">environment</button>
+			<input id="testCheckbox" type="checkbox"></input><label for="testCheckbox">オートフォーカス</label>
+		</div>
+		<div><video id="testVideo" width="256" height="256" autoplay muted playsinline></video></div>
+		<div><input id="testInput" type="range" min="0" max="100" step="1"></input></div>
+		<div><textarea id="testTextarea" rows="20" cols="40"></textarea></div>
+	</div>
+	<script type="text/javascript">
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+
+// 処理はここから始まる
+document.addEventListener('DOMContentLoaded', (event) => {
+	const buttonUser = document.getElementById('buttonUser');
+	const buttonEnvironment = document.getElementById('buttonEnvironment');
+	const testCheckbox = document.getElementById('testCheckbox');
+	const testVideo = document.getElementById('testVideo');
+	const testInput = document.getElementById('testInput');
+	const testTextarea = document.getElementById('testTextarea');
+	let track = null;
+
+	Promise.resolve().then(() => new Promise((resolve, reject) => {
+		testButtonUser.addEventListener('click', () => resolve('user'));
+		testButtonEnvironment.addEventListener('click', () => resolve('environment'));
+	})).then((facingMode) => {
+		const constraints = {};
+		constraints.video = { facingMode, };
+		constraints.audio = false;
+		return navigator.mediaDevices.getUserMedia(constraints);
+	}).then((stream) => new Promise((resolve, reject) => {
+		track = stream.getVideoTracks()[0];
+		testVideo.addEventListener('loadedmetadata', resolve);
+		testVideo.srcObject = stream;
+	})).then(() => {
+		if (testCheckbox.checked) { return; }
+		const constraints = {};
+		constraints.focusMode = { ideal: 'manual', };
+		return track.applyConstraints(constraints);
+	}).then(() => {
+		const capabilityFocusDistance = track.getCapabilities().focusDistance;
+
+		testTextarea.value = JSON.stringify({
+			ua: navigator.userAgent,
+			value: -1,
+			setting: track.getSettings().focusDistance,
+			capability: capabilityFocusDistance,
+		}, null, 2);
+
+		testInput.addEventListener('change', () => {
+			const inputMin = Number(testInput.min);
+			const inputMax = Number(testInput.max);
+			const cameraMin = Math.max(0, capabilityFocusDistance.min);
+			const cameraMax = Math.min(100, capabilityFocusDistance.max);
+			const ratio = (Number(testInput.value) - inputMin) / (inputMax - inputMin);
+			const value = ratio * (cameraMax - cameraMin) + cameraMin;
+
+			const constraints = {};
+			constraints.focusDistance = { ideal: value, };
+			track.applyConstraints(constraints).then(() => {
+				testTextarea.value = JSON.stringify({
+					ua: navigator.userAgent,
+					value,
+					setting: track.getSettings().focusDistance,
+					capability: capabilityFocusDistance,
+				}, null, 2);
+			});
+		});
+	});
+});
+
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+	</script>
+</body></html>
