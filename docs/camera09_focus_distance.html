@@ -9,8 +9,13 @@
 </head><body>
 	<div id="root">
 		<div>
-			<button id="testButtonUser">user</button>
-			<button id="testButtonEnvironment">environment</button>
+			<button id="testButtonReady">ready</button>
+			<select id="testSelect">
+				<option value="none">未選択</option>
+				<option value="user">user</option>
+				<option value="environment">environment</option>
+			</select>
+			<button id="testButtonStart">start</button>
 			<input id="testCheckbox" type="checkbox"></input><label for="testCheckbox">オートフォーカス</label>
 		</div>
 		<div><video id="testVideo" width="256" height="256" autoplay muted playsinline></video></div>
@@ -24,27 +29,83 @@
 
 // 処理はここから始まる
 document.addEventListener('DOMContentLoaded', (event) => {
-	const buttonUser = document.getElementById('buttonUser');
-	const buttonEnvironment = document.getElementById('buttonEnvironment');
+	const testButtonReady = document.getElementById('testButtonReady');
+	const testButtonStart = document.getElementById('testButtonStart');
+	const testSelect = document.getElementById('testSelect');
 	const testCheckbox = document.getElementById('testCheckbox');
 	const testVideo = document.getElementById('testVideo');
 	const testInput = document.getElementById('testInput');
 	const testTextarea = document.getElementById('testTextarea');
 	let track = null;
 
-	Promise.resolve().then(() => new Promise((resolve, reject) => {
-		testButtonUser.addEventListener('click', () => resolve('user'));
-		testButtonEnvironment.addEventListener('click', () => resolve('environment'));
-	})).then((facingMode) => {
+	Promise.resolve().then(() => {
+		// 使わないボタンの無効化
+		testButtonStart.disabled = true;
+		testSelect.disabled = true;
+	}).then(() => new Promise((resolve, reject) => {
+		// クリック待ち
+		testButtonReady.addEventListener('click', resolve);
+	})).then(() => {
+		// 使わなくなったボタンの無効化
+		testButtonReady.disabled = true;
+	}).then(() => {
+		// 権限取得のためのデバイス開始
 		const constraints = {};
-		constraints.video = { facingMode, };
+		constraints.video = true;
 		constraints.audio = false;
 		return navigator.mediaDevices.getUserMedia(constraints);
+	}).then((stream) => {
+		// 権限取得によりデバイス停止
+		stream.getTracks().forEach((track) => track.stop());
+	}).then(() => {
+		// デバイス一覧の取得
+		return navigator.mediaDevices.enumerateDevices();
+	}).then((devices) => {
+		// デバイス一覧からセレクトボックスの作成
+		for (let i = 0; i < devices.length; i++) {
+			if (devices[i].kind !== 'videoinput') { continue; }
+			testSelect.appendChild((() => {
+				const element = document.createElement('option');
+				element.value = JSON.stringify(devices[i]);
+				element.innerHTML = devices[i].label;
+				return element;
+			})());
+		}
+	}).then(() => {
+		// これから使うボタンの有効化
+		testButtonStart.disabled = false;
+		testSelect.disabled = false;
+	}).then(() => new Promise((resolve, reject) => {
+		// 選択とクリック待ち
+		testButtonStart.addEventListener('click', resolve);
+	})).then(() => {
+		// 使わなくなったボタンの無効化
+		testButtonStart.disabled = true;
+		testSelect.disabled = true;
+	}).then(() => {
+		// 撮影のためのデバイス開始
+		const constraints = {};
+		constraints.audio = false;
+
+		if (testSelect.value === 'none') {
+			constraints.video = true;
+		} else if (testSelect.value === 'user') {
+			constraints.video = { facingMode: 'user', };
+		} else if (testSelect.value === 'environment') {
+			constraints.video = { facingMode: 'environment', };
+		} else {
+			const device = JSON.parse(testSelect.value);
+			constraints.video = { deviceId: { exact: device.deviceId, }, };
+		}
+
+		return navigator.mediaDevices.getUserMedia(constraints);
 	}).then((stream) => new Promise((resolve, reject) => {
+		// デバイス開始により取得したストリームの処理
 		track = stream.getVideoTracks()[0];
 		testVideo.addEventListener('loadedmetadata', resolve);
 		testVideo.srcObject = stream;
 	})).then(() => {
+		// オートフォーカスにチェックが入っていなかったらマニュアルフォーカスに設定
 		if (testCheckbox.checked) { return; }
 		const constraints = {};
 		constraints.focusMode = { ideal: 'manual', };
