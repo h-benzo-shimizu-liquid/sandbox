@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html><head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>テスト</title>
+	<style type="text/css">
+		body { margin: 20px; background-color: blue; }
+		#testVideo { width: min(100vw - 40px, 80vh); height: min(100vw - 40px, 80vh); }
+	</style>
+</head><body>
+	<div id="root">
+		<div>
+			<button id="testButtonReady">ready</button>
+			<select id="testSelectDevice">
+				<option value="none">未選択</option>
+				<option value="user">user</option>
+				<option value="environment">environment</option>
+			</select>
+			<button id="testButtonStart">start</button>
+			<select id="testSelectPoints">
+				<option value="none">未選択</option>
+			</select>
+			<button id="testButtonCheck">設定の確認</button>
+		</div>
+		<div><video id="testVideo" width="256" height="256" autoplay muted playsinline></video></div>
+		<div><textarea id="testTextarea" rows="20" cols="40"></textarea></div>
+	</div>
+	<script type="text/javascript">
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+
+// 処理はここから始まる
+document.addEventListener('DOMContentLoaded', (event) => {
+	const testButtonReady = document.getElementById('testButtonReady');
+	const testButtonStart = document.getElementById('testButtonStart');
+	const testButtonCheck = document.getElementById('testButtonCheck');
+	const testSelectDevice = document.getElementById('testSelectDevice');
+	const testSelectPoints = document.getElementById('testSelectPoints');
+	const testVideo = document.getElementById('testVideo');
+	const testTextarea = document.getElementById('testTextarea');
+	let track = null;
+
+	Promise.resolve().then(() => {
+		// 使わないボタンの無効化
+		testButtonStart.disabled = true;
+		testButtonCheck.disabled = true;
+		testSelectDevice.disabled = true;
+		testSelectPoints.disabled = true;
+	}).then(() => new Promise((resolve, reject) => {
+		// クリック待ち
+		testButtonReady.addEventListener('click', resolve);
+	})).then(() => {
+		// 使わなくなったボタンの無効化
+		testButtonReady.disabled = true;
+	}).then(() => {
+		// 権限取得のためのデバイス開始
+		const constraints = {};
+		constraints.video = true;
+		constraints.audio = false;
+		return navigator.mediaDevices.getUserMedia(constraints);
+	}).then((stream) => {
+		// 権限取得によりデバイス停止
+		stream.getTracks().forEach((track) => track.stop());
+	}).then(() => {
+		// デバイス一覧の取得
+		return navigator.mediaDevices.enumerateDevices();
+	}).then((devices) => {
+		// デバイス一覧からセレクトボックスの作成
+		for (let i = 0; i < devices.length; i++) {
+			if (devices[i].kind !== 'videoinput') { continue; }
+			testSelectDevice.appendChild((() => {
+				const element = document.createElement('option');
+				element.value = JSON.stringify(devices[i]);
+				element.innerHTML = devices[i].label;
+				return element;
+			})());
+		}
+	}).then(() => {
+		// ポイント一覧のセレクトボックスの作成
+		const points = ['[{ "x": 0.2, "y": 0.2 }]', '[{ "x": 0.2, "y": 0.8 }]', '[{ "x": 0.8, "y": 0.2 }]', '[{ "x": 0.8, "y": 0.8 }]',];
+		for (let i = 0; i < points.length; i++) {
+			testSelectPoints.appendChild((() => {
+				const element = document.createElement('option');
+				element.value = points[i];
+				element.innerHTML = points[i];
+				return element;
+			})());
+		}
+	}).then(() => {
+		// これから使うボタンの有効化
+		testButtonStart.disabled = false;
+		testSelectDevice.disabled = false;
+		testSelectPoints.disabled = false;
+	}).then(() => new Promise((resolve, reject) => {
+		// 選択とクリック待ち
+		testButtonStart.addEventListener('click', resolve);
+	})).then(() => {
+		// 使わなくなったボタンの無効化
+		testButtonStart.disabled = true;
+		testSelectDevice.disabled = true;
+		testSelectPoints.disabled = true;
+	}).then(() => {
+		// 撮影のためのデバイス開始
+		const constraintsVideo = {};
+
+		// カメラデバイス選択
+		if (testSelectDevice.value === 'none') {
+			// 何もしない
+		} else if (testSelectDevice.value === 'user') {
+			constraintsVideo.facingMode = 'user';
+		} else if (testSelectDevice.value === 'environment') {
+			constraintsVideo.facingMode = 'environment';
+		} else {
+			const device = JSON.parse(testSelectDevice.value);
+			constraintsVideo.deviceId = { exact: device.deviceId, };
+		}
+
+		// ポイント選択
+		if (testSelectPoints.value !== 'none') {
+			const pointsOfInterest = JSON.parse(testSelectPoints.value);
+			constraintsVideo.advanced = [{ pointsOfInterest, },];
+		}
+
+		const constraints = {};
+		constraints.audio = false;
+		constraints.video = constraintsVideo;
+		return navigator.mediaDevices.getUserMedia(constraints);
+	}).then((stream) => new Promise((resolve, reject) => {
+		// デバイス開始により取得したストリームの処理
+		track = stream.getVideoTracks()[0];
+		testVideo.addEventListener('loadedmetadata', resolve);
+		testVideo.srcObject = stream;
+	})).then(() => {
+		// ポイント選択
+		testSelectPoints.disabled = false;
+		testSelectPoints.addEventListener('change', () => {
+			testSelectPoints.disabled = true;
+			const pointsOfInterest = JSON.parse(testSelectPoints.value);
+			const constraints = { advanced: [{ pointsOfInterest, },], };
+			track.applyConstraints(constraints).then(() => {
+				testSelectPoints.disabled = false;
+			});
+		});
+	}).then(() => {
+		// 確認ボタン設定
+		testButtonCheck.disabled = false;
+		testButtonCheck.addEventListener('click', () => {
+			testTextarea.value = JSON.stringify(track.getConstraints(), null, 2);
+		});
+	});
+});
+
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+// ----------------------------------------------------------------
+	</script>
+</body></html>
