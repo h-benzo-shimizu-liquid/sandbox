@@ -16,6 +16,7 @@
 				<option value="user">user</option>
 				<option value="environment">environment</option>
 			</select>
+			<input id="testCheckbox" type="checkbox"></input><label for="testCheckbox">自動露出</label>
 			<button id="testButtonStart">start</button>
 			<button id="testButtonCheck">確認</button>
 			<button id="testButtonShoot">撮影</button>
@@ -52,6 +53,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 	const testButtonCheck = document.getElementById('testButtonCheck');
 	const testButtonShoot = document.getElementById('testButtonShoot');
 	const testSelect = document.getElementById('testSelect');
+	const testCheckbox = document.getElementById('testCheckbox');
 	const testVideo = document.getElementById('testVideo');
 	const testTextarea = document.getElementById('testTextarea');
 	const testDivImg = document.getElementById('testDivImg');
@@ -137,11 +139,35 @@ document.addEventListener('DOMContentLoaded', (event) => {
 		testVideo.addEventListener('loadedmetadata', resolve);
 		testVideo.srcObject = stream;
 	})).then(() => {
+		// チェックボックスの自動露出を確認
+		if (capabilities.exposureMode === undefined) { return; }
+
+		const change = async () => {
+			const constraints = {};
+			constraints.exposureMode = { ideal: testCheckbox.checked ? 'continuous' : 'manual', };
+			await track.applyConstraints(constraints);
+		};
+
+		testCheckbox.addEventListener('change', () => {
+			change().then(() => {
+				const settings1 = track.getSettings();
+				const settings2 = entries.map(entry => [entry.key, settings1[entry.key],]);
+				const settings3 = Object.fromEntries(settings2);
+				settings3.exposureMode = settings1.exposureMode;
+				testTextarea.value = JSON.stringify(settings3, null, 2);
+			});
+		});
+
+		change();
+	}).then(() => {
 		// 最初に状態を表示
-		const settings = track.getSettings();
+		const settings1 = track.getSettings();
+		const settings2 = entries.map(entry => [entry.key, settings1[entry.key],]);
+		const settings3 = Object.fromEntries(settings2);
+		settings3.exposureMode = settings1.exposureMode;
 		testTextarea.value = JSON.stringify({
 			ua: navigator.userAgent,
-			settings: Object.fromEntries(entries.map(entry => [entry.key, settings[entry.key],])),
+			settings: settings3,
 			capabilities: Object.fromEntries(entries.map(entry => [entry.key, capabilities[entry.key],])),
 		}, null, 2);
 	}).then(() => {
@@ -165,6 +191,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 					const settings1 = track.getSettings();
 					const settings2 = entries.map(entry => [entry.key, settings1[entry.key],]);
 					const settings3 = Object.fromEntries(settings2);
+					settings3.exposureMode = settings1.exposureMode;
 					testTextarea.value = JSON.stringify(settings3, null, 2);
 				});
 			});
