@@ -17,11 +17,28 @@
 				<option value="environment">environment</option>
 			</select>
 			<button id="testButtonStart">start</button>
-			<button id="testButtonCheck">設定の確認</button>
+			<button id="testButtonCheck">確認</button>
+			<button id="testButtonShoot">撮影</button>
 		</div>
 		<div><video id="testVideo" width="256" height="256" autoplay muted playsinline></video></div>
-		<div><span>iso</span><input id="testInput" type="range" min="0" max="100" step="1"></input></div>
+		<table>
+			<tbody>
+				<tr>
+					<td>iso</td>
+					<td><input id="testInputIso" type="range" min="0" max="100" step="1"></input></td>
+				</tr>
+				<tr>
+					<td>exposureTime</td>
+					<td><input id="testInputExp" type="range" min="0" max="100" step="1"></input></td>
+				</tr>
+				<tr>
+					<td>frameRate</td>
+					<td><input id="testInputFps" type="range" min="0" max="100" step="1"></input></td>
+				</tr>
+			</tbody>
+		</table>
 		<div><textarea id="testTextarea" rows="20" cols="40"></textarea></div>
+		<div id="testDivImg"></div>
 	</div>
 	<script type="text/javascript">
 // ----------------------------------------------------------------
@@ -33,18 +50,28 @@ document.addEventListener('DOMContentLoaded', (event) => {
 	const testButtonReady = document.getElementById('testButtonReady');
 	const testButtonStart = document.getElementById('testButtonStart');
 	const testButtonCheck = document.getElementById('testButtonCheck');
+	const testButtonShoot = document.getElementById('testButtonShoot');
 	const testSelect = document.getElementById('testSelect');
 	const testVideo = document.getElementById('testVideo');
-	const testInput = document.getElementById('testInput');
 	const testTextarea = document.getElementById('testTextarea');
+	const testDivImg = document.getElementById('testDivImg');
+
+	const entries = [];
+	entries.push({ input: document.getElementById('testInputIso'), key: 'iso', });
+	entries.push({ input: document.getElementById('testInputExp'), key: 'exposureTime', });
+	entries.push({ input: document.getElementById('testInputFps'), key: 'frameRate', });
+
 	let track = null;
+	let capabilities = null;
+	let imageCapture = null;
 
 	Promise.resolve().then(() => {
 		// 使わないボタンの無効化
 		testButtonStart.disabled = true;
 		testButtonCheck.disabled = true;
+		testButtonShoot.disabled = true;
 		testSelect.disabled = true;
-		testInput.disabled = true;
+		entries.forEach(entry => { entry.input.disabled = true; });
 	}).then(() => new Promise((resolve, reject) => {
 		// クリック待ち
 		testButtonReady.addEventListener('click', resolve);
@@ -105,50 +132,62 @@ document.addEventListener('DOMContentLoaded', (event) => {
 	}).then((stream) => new Promise((resolve, reject) => {
 		// デバイス開始により取得したストリームの処理
 		track = stream.getVideoTracks()[0];
+		capabilities = track.getCapabilities();
+		imageCapture = new ImageCapture(track);
 		testVideo.addEventListener('loadedmetadata', resolve);
 		testVideo.srcObject = stream;
 	})).then(() => {
-		// // オートフォーカスにチェックが入っていなかったらマニュアルフォーカスに設定
-		// if (testCheckbox.checked) { return; }
-		// const constraints = {};
-		// constraints.focusMode = { ideal: 'manual', };
-		// return track.applyConstraints(constraints);
+		// 最初に状態を表示
+		const settings = track.getSettings();
+		testTextarea.value = JSON.stringify({
+			ua: navigator.userAgent,
+			settings: Object.fromEntries(entries.map(entry => [entry.key, settings[entry.key],])),
+			capabilities: Object.fromEntries(entries.map(entry => [entry.key, capabilities[entry.key],])),
+		}, null, 2);
 	}).then(() => {
-		const capabilityIso = track.getCapabilities().iso;
+		// スライダー設定
+		entries.forEach(entry => {
+			if (capabilities[entry.key] === undefined) { return; }
 
-		if (capabilityIso ?? null !== null) {
-			testTextarea.value = JSON.stringify({
-				ua: navigator.userAgent,
-				value: -1,
-				setting: track.getSettings().iso,
-				capability: capabilityIso,
-			}, null, 2);
-
-			testInput.disabled = false;
-			testInput.addEventListener('change', () => {
-				const inputMin = Number(testInput.min);
-				const inputMax = Number(testInput.max);
-				const cameraMin = capabilityIso.min;
-				const cameraMax = capabilityIso.max;
-				const ratio = (Number(testInput.value) - inputMin) / (inputMax - inputMin);
+			entry.input.disabled = false;
+			entry.input.addEventListener('change', () => {
+				const inputMin = Number(entry.input.min);
+				const inputMax = Number(entry.input.max);
+				const cameraMin = capabilities[entry.key].min;
+				const cameraMax = capabilities[entry.key].max;
+				const ratio = (Number(entry.input.value) - inputMin) / (inputMax - inputMin);
 				const value = ratio * (cameraMax - cameraMin) + cameraMin;
 
 				const constraints = {};
-				constraints.iso = { ideal: value, };
+				constraints[entry.key] = { ideal: value, };
+
 				track.applyConstraints(constraints).then(() => {
-					testTextarea.value = JSON.stringify({
-						value,
-						setting: track.getSettings().iso,
-						capability: capabilityIso,
-					}, null, 2);
+					const settings1 = track.getSettings();
+					const settings2 = entries.map(entry => [entry.key, settings1[entry.key],]);
+					const settings3 = Object.fromEntries(settings2);
+					testTextarea.value = JSON.stringify(settings3, null, 2);
 				});
 			});
-		}
+		});
 	}).then(() => {
 		// 確認ボタン設定
 		testButtonCheck.disabled = false;
 		testButtonCheck.addEventListener('click', () => {
-			testTextarea.value = JSON.stringify(track.getConstraints(), null, 2);
+			const settings = track.getSettings();
+			testTextarea.value = JSON.stringify(settings, null, 2);
+		});
+	}).then(() => {
+		// 撮影ボタン設定
+		testButtonShoot.disabled = false;
+		testButtonShoot.addEventListener('click', () => {
+			imageCapture.takePhoto().then(blob => {
+				testDivImg.appendChild((() => {
+					const element = document.createElement('img');
+					element.height = 100;
+					element.src = URL.createObjectURL(blob);
+					return element;
+				})());
+			});
 		});
 	});
 });
