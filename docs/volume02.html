@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Monster Battle - Code Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
+        
+        body { font-family: 'DotGothic16', sans-serif; }
+
+        .shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        .attack-player { animation: attackPlayer 0.5s ease-in-out; }
+        @keyframes attackPlayer {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(50px); }
+        }
+
+        .attack-enemy { animation: attackEnemy 0.5s ease-in-out; }
+        @keyframes attackEnemy {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(-50px); }
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-white min-h-screen flex items-center justify-center p-4 overflow-hidden">
+
+    <div id="gameContainer" class="max-w-md w-full bg-slate-900 rounded-3xl shadow-2xl p-6 border-4 border-slate-800 relative min-h-[600px] flex flex-col">
+        
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-4">
+            <div class="text-blue-400 text-[10px]">VOICE-MONSTER v1.5 [UI_OPTIMIZED]</div>
+            <div id="battery" class="w-8 h-4 border border-slate-600 rounded-sm relative after:content-[''] after:absolute after:-right-1.5 after:top-1 after:w-1 after:h-2 after:bg-slate-600">
+                <div class="h-full bg-green-500 w-full"></div>
+            </div>
+        </div>
+
+        <!-- Scene: Home -->
+        <div id="scene-home" class="flex-1 flex flex-col items-center justify-center space-y-4">
+            <div id="homeVisualContainer" class="relative w-40 h-40 flex items-center justify-center mb-2">
+                <div class="absolute inset-0 border-4 border-blue-500/30 rounded-full animate-ping"></div>
+                <div id="homeVisual" class="w-full h-full flex items-center justify-center text-6xl text-center">🥚</div>
+            </div>
+            <div class="text-center mb-4">
+                <h2 class="text-2xl font-bold mb-1 uppercase tracking-tighter">Voice Monster</h2>
+                <p id="homeSubtext" class="text-slate-400 text-xs">叫び声でモンスターを召喚せよ</p>
+            </div>
+            <div class="w-full flex flex-col gap-3">
+                <button onclick="startRecording()" class="w-full py-5 bg-blue-600 hover:bg-blue-500 rounded-2xl text-xl font-bold shadow-lg shadow-blue-900/40 transition-transform active:scale-95">
+                    叫んで召喚
+                </button>
+                <button onclick="showScene('code-input')" class="w-full py-4 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-2xl text-md font-bold shadow-md transition-transform active:scale-95">
+                    コードを使用する
+                </button>
+            </div>
+        </div>
+
+        <!-- Scene: Code Input -->
+        <div id="scene-code-input" class="hidden flex-1 flex flex-col items-center justify-center space-y-6">
+            <h2 class="text-xl font-bold">モンスターコードを入力</h2>
+            <textarea id="opponentCodeInput" class="w-full h-32 bg-slate-950 border border-slate-700 rounded-xl p-4 text-xs font-mono text-green-400 placeholder:text-slate-600" placeholder="ここにコードをペースト..."></textarea>
+            <div class="flex flex-col w-full gap-3">
+                <button onclick="handleCodeAction('summon')" class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-xl text-lg font-bold shadow-lg">
+                    自分のモンスターにする
+                </button>
+                <div class="relative flex items-center py-2">
+                    <div class="flex-grow border-t border-slate-700"></div>
+                    <span class="flex-shrink mx-4 text-slate-500 text-[10px]">OR</span>
+                    <div class="flex-grow border-t border-slate-700"></div>
+                </div>
+                <button onclick="handleCodeAction('battle')" class="w-full py-4 bg-purple-600 hover:bg-purple-500 rounded-xl text-lg font-bold shadow-lg">
+                    このモンスターと戦う
+                </button>
+                <button onclick="showScene('home')" class="w-full py-2 text-slate-500 text-sm">キャンセル</button>
+            </div>
+        </div>
+
+        <!-- Scene: Recording -->
+        <div id="scene-recording" class="hidden flex-1 flex flex-col items-center justify-center space-y-6">
+            <div class="text-4xl font-bold text-red-500 animate-pulse uppercase tracking-widest">Recording</div>
+            <div id="timerDisplay" class="text-8xl font-black italic tabular-nums">3.0</div>
+            <div class="w-full h-24 bg-slate-950 rounded-lg overflow-hidden relative border border-slate-800">
+                <canvas id="waveCanvas" class="w-full h-full"></canvas>
+            </div>
+            <div id="recMeterContainer" class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                <div id="recMeter" class="h-full bg-red-600 w-0 transition-all duration-75 shadow-[0_0_10px_rgba(220,38,38,0.5)]"></div>
+            </div>
+        </div>
+
+        <!-- Scene: Result -->
+        <div id="scene-result" class="hidden flex-1 flex flex-col items-center space-y-4 pt-2">
+            <h2 class="text-xl font-bold text-yellow-400">召喚成功！</h2>
+            <div id="monsterContainer" class="w-40 h-40 bg-slate-800 rounded-full flex items-center justify-center border-4 border-slate-700 shadow-2xl"></div>
+            
+            <div id="monsterStats" class="w-full bg-slate-800/50 p-3 rounded-xl text-sm space-y-1 border border-slate-700">
+                <div class="flex justify-between"><span>HP</span><span id="statHP" class="font-bold text-green-400"></span></div>
+                <div class="flex justify-between"><span>ATK</span><span id="statATK" class="font-bold text-red-400"></span></div>
+                <div class="flex justify-between"><span>SPD</span><span id="statSPD" class="font-bold text-blue-400"></span></div>
+            </div>
+
+            <div class="grid grid-cols-1 w-full gap-2">
+                <button onclick="startBattle()" class="w-full py-3 bg-red-600 hover:bg-red-500 rounded-xl font-bold text-lg shadow-lg shadow-red-900/30">野生の敵と戦う</button>
+                <button id="copyCodeBtn" onclick="copyMonsterCode()" class="w-full py-3 bg-slate-700 hover:bg-slate-600 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
+                    <span id="copyBtnText">モンスターコードをコピー</span>
+                </button>
+                <button onclick="showScene('home')" class="w-full py-2 text-slate-500 text-xs text-center">タイトルへ</button>
+            </div>
+        </div>
+
+        <!-- Scene: Battle -->
+        <div id="scene-battle" class="hidden flex-1 flex flex-col justify-between py-2">
+            <div id="enemySide" class="flex flex-col items-end">
+                <div class="w-3/4 bg-slate-800 p-2 rounded-lg mb-2 border border-slate-700">
+                    <div class="flex justify-between text-[10px] mb-1"><span id="enemyNameText">ENEMY</span><span id="enemyHpText">100/100</span></div>
+                    <div class="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden">
+                        <div id="enemyHpBar" class="h-full bg-red-500 w-full transition-all duration-300"></div>
+                    </div>
+                </div>
+                <div id="enemyVisual" class="w-24 h-24 flex items-center justify-center text-5xl bg-slate-800/20 rounded-full border border-slate-700/50"></div>
+            </div>
+
+            <div id="battleLog" class="h-24 text-[10px] text-green-400 bg-black/60 p-2 rounded font-mono overflow-y-auto border border-slate-800 my-2 shadow-inner"></div>
+
+            <div id="playerSide" class="flex flex-col items-start">
+                <div id="playerVisual" class="w-32 h-32 flex items-center justify-center"></div>
+                <div class="w-3/4 bg-slate-800 p-2 rounded-lg mt-2 border border-slate-700">
+                    <div class="flex justify-between text-[10px] mb-1"><span>YOU</span><span id="playerHpText">100/100</span></div>
+                    <div class="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden">
+                        <div id="playerHpBar" class="h-full bg-green-500 w-full transition-all duration-300"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scene: Gameover -->
+        <div id="scene-gameover" class="hidden flex-1 flex flex-col items-center justify-center space-y-6 text-center">
+            <div id="gameResultText" class="text-6xl font-black italic tracking-tighter">WIN!!</div>
+            <p id="gameSummary" class="text-slate-400 text-sm px-4 leading-relaxed"></p>
+            <button onclick="showScene('home')" class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-xl text-xl font-bold transition-all shadow-lg active:scale-95">
+                タイトルに戻る
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-white text-black px-6 py-3 rounded-full text-sm font-bold opacity-0 transition-opacity duration-300 pointer-events-none z-50 shadow-2xl border border-slate-200"></div>
+
+    <script>
+        let audioContext, analyser, microphone, animationId;
+        let recordingData = { volumes: [], frequencies: [], peak: 0 };
+        let playerMonster = null;
+        let enemyMonster = null;
+
+        const scenes = ['home', 'recording', 'result', 'battle', 'gameover', 'code-input'];
+
+        function showScene(sceneName) {
+            scenes.forEach(s => {
+                const el = document.getElementById(`scene-${s}`);
+                if (el) el.classList.add('hidden');
+            });
+            const target = document.getElementById(`scene-${sceneName}`);
+            if (target) target.classList.remove('hidden');
+
+            if (sceneName === 'home') {
+                const homeVisual = document.getElementById('homeVisual');
+                const homeSubtext = document.getElementById('homeSubtext');
+                if (playerMonster) {
+                    updateMonsterUI('homeVisual', playerMonster);
+                    homeSubtext.textContent = "あなたのパートナーが待機中";
+                } else {
+                    homeVisual.innerHTML = "🥚";
+                    homeSubtext.textContent = "叫び声でモンスターを召喚せよ";
+                }
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.style.opacity = '1';
+            setTimeout(() => { toast.style.opacity = '0'; }, 3000);
+        }
+
+        function generateCode(monster) {
+            const simpleData = {
+                h: monster.hp, a: monster.atk, s: monster.spd, hu: monster.hue, e: monster.emoji
+            };
+            const jsonStr = JSON.stringify(simpleData);
+            return btoa(unescape(encodeURIComponent(jsonStr)));
+        }
+
+        function decodeCode(code) {
+            try {
+                const jsonStr = decodeURIComponent(escape(atob(code)));
+                const data = JSON.parse(jsonStr);
+                return {
+                    hp: data.h, maxHp: data.h, atk: data.a, spd: data.s, hue: data.hu, emoji: data.e, name: "コードの刺客"
+                };
+            } catch(e) {
+                console.error("Decode error", e);
+                return null;
+            }
+        }
+
+        function handleCodeAction(type) {
+            const input = document.getElementById('opponentCodeInput');
+            const code = input.value.trim();
+            const decoded = decodeCode(code);
+
+            if (!decoded) {
+                showToast("無効なコードです");
+                return;
+            }
+
+            if (type === 'summon') {
+                playerMonster = decoded;
+                updateMonsterUI('monsterContainer', playerMonster);
+                showToast("パートナーを更新しました！");
+                showScene('result');
+            } else if (type === 'battle') {
+                if (!playerMonster) {
+                    showToast("先に自分のモンスターを召喚してください");
+                    showScene('home');
+                    return;
+                }
+                enemyMonster = decoded;
+                startBattle(true);
+            }
+        }
+
+        async function startRecording() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                microphone = audioContext.createMediaStreamSource(stream);
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256;
+                microphone.connect(analyser);
+
+                recordingData = { volumes: [], frequencies: [], peak: 0 };
+                showScene('recording');
+                
+                const canvas = document.getElementById('waveCanvas');
+                const ctx = canvas.getContext('2d');
+                let startTime = Date.now();
+                const duration = 3000;
+
+                function tick() {
+                    const elapsed = Date.now() - startTime;
+                    const remaining = Math.max(0, (duration - elapsed) / 1000);
+                    document.getElementById('timerDisplay').textContent = remaining.toFixed(1);
+
+                    const dataArray = new Uint8Array(analyser.frequencyBinCount);
+                    analyser.getByteFrequencyData(dataArray);
+                    
+                    let sum = 0, freqSum = 0;
+                    for(let i=0; i<dataArray.length; i++) {
+                        sum += dataArray[i];
+                        freqSum += dataArray[i] * i;
+                    }
+                    let avg = sum / dataArray.length;
+                    recordingData.volumes.push(avg);
+                    recordingData.frequencies.push(freqSum / (sum || 1));
+                    if(avg > recordingData.peak) recordingData.peak = avg;
+
+                    document.getElementById('recMeter').style.width = `${Math.min(avg * 1.5, 100)}%`;
+
+                    ctx.fillStyle = '#0f172a';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = '#22c55e';
+                    ctx.beginPath();
+                    const sliceWidth = canvas.width / dataArray.length;
+                    let x = 0;
+                    for(let i = 0; i < dataArray.length; i++) {
+                        const y = (dataArray[i] / 255.0) * canvas.height;
+                        if(i === 0) ctx.moveTo(x, canvas.height - y);
+                        else ctx.lineTo(x, canvas.height - y);
+                        x += sliceWidth;
+                    }
+                    ctx.stroke();
+
+                    if(elapsed < duration) animationId = requestAnimationFrame(tick);
+                    else finishRecording();
+                }
+                tick();
+            } catch (err) {
+                alert("マイクの使用許可が必要です。");
+                showScene('home');
+            }
+        }
+
+        function finishRecording() {
+            cancelAnimationFrame(animationId);
+            if(audioContext) audioContext.close();
+
+            const avgVol = recordingData.volumes.reduce((a, b) => a + b, 0) / recordingData.volumes.length;
+            const avgFreq = recordingData.frequencies.reduce((a, b) => a + b, 0) / recordingData.frequencies.length;
+            
+            playerMonster = {
+                hp: Math.floor(avgVol * 6) + 60,
+                maxHp: Math.floor(avgVol * 6) + 60,
+                atk: Math.floor(recordingData.peak / 1.8) + 15,
+                spd: Math.floor(avgFreq * 2.5) + 10,
+                hue: Math.floor(avgFreq * 12) % 360,
+                emoji: getEmojiByFreq(avgFreq)
+            };
+
+            updateMonsterUI('monsterContainer', playerMonster);
+            showScene('result');
+        }
+
+        function getEmojiByFreq(freq) {
+            if(freq < 15) return '🦍';
+            if(freq < 30) return '🐉';
+            if(freq < 45) return '🦁';
+            if(freq < 60) return '🦅';
+            return '🧚';
+        }
+
+        function updateMonsterUI(targetId, monster) {
+            const container = document.getElementById(targetId);
+            if (!container) return;
+            const hue = monster.hue;
+            container.innerHTML = `
+                <svg width="100%" height="100%" viewBox="0 0 100 100">
+                    <defs>
+                        <radialGradient id="grad${hue}-${targetId}" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" style="stop-color:hsl(${hue}, 80%, 60%)" />
+                            <stop offset="100%" style="stop-color:hsl(${hue}, 80%, 30%)" />
+                        </radialGradient>
+                    </defs>
+                    <circle cx="50" cy="50" r="45" fill="url(#grad${hue}-${targetId})" stroke="white" stroke-width="2" />
+                    <circle cx="35" cy="40" r="6" fill="white" />
+                    <circle cx="65" cy="40" r="6" fill="white" />
+                    <circle cx="35" cy="40" r="3" fill="black" />
+                    <circle cx="65" cy="40" r="3" fill="black" />
+                    <path d="M 30 70 Q 50 ${70 + (monster.atk/5)} 70 70" stroke="black" stroke-width="4" fill="none" stroke-linecap="round" />
+                    <text x="50" y="55" font-size="35" text-anchor="middle" dominant-baseline="middle">${monster.emoji}</text>
+                </svg>
+            `;
+            if(targetId === 'monsterContainer') {
+                document.getElementById('statHP').textContent = monster.hp;
+                document.getElementById('statATK').textContent = monster.atk;
+                document.getElementById('statSPD').textContent = monster.spd;
+            }
+        }
+
+        function copyMonsterCode() {
+            if(!playerMonster) return;
+            try {
+                const code = generateCode(playerMonster);
+                const textArea = document.createElement("textarea");
+                textArea.value = code;
+                textArea.style.position = "fixed";
+                textArea.style.left = "-9999px";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                const successful = document.execCommand('copy');
+                document.body.removeChild(textArea);
+                if (successful) {
+                    showToast("コードをコピーしました！");
+                    document.getElementById('copyBtnText').textContent = "コピー完了！";
+                    setTimeout(() => { document.getElementById('copyBtnText').textContent = "モンスターコードをコピー"; }, 2000);
+                }
+            } catch (err) {
+                showToast("コピーに失敗しました。");
+            }
+        }
+
+        function startBattle(isPvP = false) {
+            showScene('battle');
+            const log = document.getElementById('battleLog');
+            if (log) log.innerHTML = "";
+            if(!isPvP) {
+                enemyMonster = {
+                    hp: 180, maxHp: 180, atk: 28, spd: 35, hue: 0, emoji: '👾', name: "野生のメガビット"
+                };
+            }
+            document.getElementById('enemyNameText').textContent = enemyMonster.name;
+            updateMonsterUI('playerVisual', playerMonster);
+            updateMonsterUI('enemyVisual', enemyMonster);
+            updateBattleBars();
+            runBattleTurn();
+        }
+
+        function updateBattleBars() {
+            const pPercent = (playerMonster.hp / playerMonster.maxHp) * 100;
+            const ePercent = (enemyMonster.hp / enemyMonster.maxHp) * 100;
+            document.getElementById('playerHpBar').style.width = `${Math.max(0, pPercent)}%`;
+            document.getElementById('playerHpText').textContent = `${playerMonster.hp}/${playerMonster.maxHp}`;
+            document.getElementById('enemyHpBar').style.width = `${Math.max(0, ePercent)}%`;
+            document.getElementById('enemyHpText').textContent = `${enemyMonster.hp}/${enemyMonster.maxHp}`;
+        }
+
+        async function attack(who) {
+            const pVisual = document.getElementById('playerVisual');
+            const eVisual = document.getElementById('enemyVisual');
+            const log = document.getElementById('battleLog');
+            const addLog = (m) => {
+                const line = document.createElement('div');
+                line.textContent = `> ${m}`;
+                log.appendChild(line);
+                log.scrollTop = log.scrollHeight;
+            };
+
+            if(who === 'player') {
+                if (pVisual) pVisual.classList.add('attack-player');
+                addLog(`あなたの攻撃！`);
+                await new Promise(r => setTimeout(r, 250));
+                if (eVisual) eVisual.classList.add('shake');
+                const damage = Math.floor(playerMonster.atk * (0.85 + Math.random() * 0.3));
+                enemyMonster.hp = Math.max(0, enemyMonster.hp - damage);
+                addLog(`${enemyMonster.name}に ${damage} ダメージ！`);
+            } else {
+                if (eVisual) eVisual.classList.add('attack-enemy');
+                addLog(`${enemyMonster.name}の攻撃！`);
+                await new Promise(r => setTimeout(r, 250));
+                if (pVisual) pVisual.classList.add('shake');
+                const damage = Math.floor(enemyMonster.atk * (0.85 + Math.random() * 0.3));
+                playerMonster.hp = Math.max(0, playerMonster.hp - damage);
+                addLog(`あなたに ${damage} ダメージ！`);
+            }
+            updateBattleBars();
+            await new Promise(r => setTimeout(r, 500));
+            if (pVisual) pVisual.classList.remove('attack-player', 'shake');
+            if (eVisual) eVisual.classList.remove('attack-enemy', 'shake');
+        }
+
+        async function runBattleTurn() {
+            if(playerMonster.hp <= 0 || enemyMonster.hp <= 0) {
+                finishGame();
+                return;
+            }
+            const first = playerMonster.spd >= enemyMonster.spd ? 'player' : 'enemy';
+            await attack(first);
+            if(enemyMonster.hp > 0 && playerMonster.hp > 0) {
+                await new Promise(r => setTimeout(r, 600));
+                await attack(first === 'player' ? 'enemy' : 'player');
+            }
+            if(playerMonster.hp > 0 && enemyMonster.hp > 0) setTimeout(runBattleTurn, 800);
+            else finishGame();
+        }
+
+        function finishGame() {
+            setTimeout(() => {
+                showScene('gameover');
+                const win = playerMonster.hp > 0;
+                const resultText = document.getElementById('gameResultText');
+                resultText.textContent = win ? "VICTORY!!" : "DEFEAT...";
+                resultText.className = `text-6xl font-black italic ${win ? 'text-yellow-400' : 'text-slate-500'}`;
+                document.getElementById('gameSummary').textContent = win ? 
+                    "勝利しました！あなたの声の結晶は最強です。" : 
+                    "敗北しました... もっと魂を揺さぶる声が必要です。";
+            }, 800);
+        }
+    </script>
+</body>
+</html>
